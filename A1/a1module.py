@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 
-# Sklearn libraries
+# Sklearn libraries 
 from sklearn import metrics
 
 # Image manipulation libraries
@@ -11,6 +11,11 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 
-# Read the csv file
-img_labels = pd.read_csv('./Datasets/cartoon_set/labels.csv', delimiter = "\t")
-print(img_labels.shape)
+# Read the csv file and extract labels for each image
+labels = pd.read_csv('./Datasets/celeba/labels.csv', delimiter = "\t")
+
+lab_names = labels["img_name"].values
+lab_gen = labels["gender"].values
+
+
+
