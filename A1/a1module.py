@@ -28,18 +28,25 @@ img_count = len(lab_names)
 
 img_size = Image.open("./Datasets/celeba/img/" + lab_names[0]).size
 
-img_per_batch = 200
+img_per_batch = 500
 num_batches = int(img_count / img_per_batch)
 
 # Apply GridSearchCV to find best parameters for given dataset
 # verbose is used to describe the steps taken to find best parameters
 #clf = SVC(gamma=0.001, kernel="rbf")
-clf = SGDClassifier(learning_rate = 'constant', eta0 = 0.1, shuffle = False)
+clf = SGDClassifier(learning_rate = 'optimal', eta0 = 0.1, shuffle = False, )
 
 X_test = []
 y_test = []
 
 av_classes = np.array(np.unique(lab_gen))
+
+def unison_shuffled_copies(a, b):
+    assert len(a) == len(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
+
+lab_gen, lab_names = unison_shuffled_copies(lab_gen, lab_names)
 
 for k in range(num_batches):
 
@@ -63,7 +70,7 @@ for k in range(num_batches):
     else:
         # Split data into 70% train and 30% test subsets
         X_train, X_test, y_train, y_test = train_test_split(
-            img_data, lab_gen[k * img_per_batch:(k+1) * img_per_batch], test_size = 0.2, shuffle = True
+            img_data, lab_gen[k * img_per_batch:(k+1) * img_per_batch], test_size = 0.5, shuffle = True
         )
 
     # Learn the digits on the train subset
