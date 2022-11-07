@@ -29,7 +29,7 @@ img_count = len(lab_names)
 
 img_size = Image.open("./Datasets/celeba/img/" + lab_names[0]).size
 
-img_per_batch = 5000
+img_per_batch = 1000
 num_batches = int(img_count / img_per_batch)
 
 # Apply GridSearchCV to find best parameters for given dataset
@@ -41,6 +41,8 @@ X_test = []
 y_test = []
 
 av_classes = np.array(np.unique(lab_gen))
+
+
 
 def unison_shuffled_copies(a, b):
     assert len(a) == len(b)
@@ -57,16 +59,9 @@ for k in range(num_batches):
 
     for i in range(img_per_batch):
         img = Image.open("./Datasets/celeba/img/" + lab_names[k * img_per_batch + i]).convert('L') # Open images and convert to greyscale
-        #img = np.array(img).flatten()
-
-        pca_img = PCA(n_components = 50)
-
-        img_reduced = pca_img.fit_transform(img)
-        #img_recovered = pca_img.inverse_transform(img_reduced)
-
-        #plt.imshow(img_recovered, cmap='gray_r')
+        img = np.array(img).flatten()
         
-        img_data.append(img_reduced.flatten())
+        img_data.append(img)
 
     X_train = []
     y_train = []
@@ -83,7 +78,7 @@ for k in range(num_batches):
         )
 
     # Learn the digits on the train subset
-    clf.fit(X_train, y_train)
+    clf.partial_fit(X_train, y_train, classes=av_classes)
 
 
 # Predict the value of the digit on the test subset
