@@ -17,8 +17,11 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 
+DATASET_PATH = './Datasets/celeba'
+TEST_DATASET_PATH = './Datasets/celeba_test'
+
 # Read the csv file and extract labels for each image
-labels = pd.read_csv('./Datasets/celeba/labels.csv', delimiter = "\t")
+labels = pd.read_csv(DATASET_PATH + '/labels.csv', delimiter = "\t")
 
 lab_names = labels["img_name"].values
 lab_gen = labels["gender"].values
@@ -27,7 +30,7 @@ lab_gen = labels["gender"].values
 img_count = len(lab_names)
 
 
-img_size = Image.open("./Datasets/celeba/img/" + lab_names[0]).size
+img_size = Image.open(DATASET_PATH + '/img/' + lab_names[0]).size
 
 img_per_batch = 1000
 num_batches = int(img_count / img_per_batch)
@@ -58,7 +61,7 @@ for k in range(num_batches):
     img_data = []
 
     for i in range(img_per_batch):
-        img = Image.open("./Datasets/celeba/img/" + lab_names[k * img_per_batch + i]).convert('L') # Open images and convert to greyscale
+        img = Image.open(DATASET_PATH + '/img/' + lab_names[k * img_per_batch + i]).convert('L') # Open images and convert to greyscale
         img = np.array(img).flatten()
         
         img_data.append(img)
