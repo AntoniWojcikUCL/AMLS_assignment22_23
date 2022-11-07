@@ -62,7 +62,7 @@ for k in range(num_batches):
     img_data = []
 
     for i in range(img_per_batch):
-        img = Image.open(DATASET_PATH + '/img/' + lab_names[k * img_per_batch + i]) # Open images and convert to greyscale
+        img = Image.open(DATASET_PATH + '/img/' + lab_names[k * img_per_batch + i]).convert('L') # Open images and convert to greyscale
         img = np.array(img).flatten()
         
         img_data.append(img)
@@ -104,7 +104,7 @@ for k in range(num_batches):
     img_data = []
 
     for i in range(img_per_batch):
-        img = Image.open(TEST_DATASET_PATH + '/img/' + lab_names[k * img_per_batch + i]) # Open images and convert to greyscale
+        img = Image.open(TEST_DATASET_PATH + '/img/' + lab_names[k * img_per_batch + i]).convert('L') # Open images and convert to greyscale
         img = np.array(img).flatten()
         
         img_data.append(img)
