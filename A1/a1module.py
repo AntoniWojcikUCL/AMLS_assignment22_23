@@ -19,20 +19,40 @@ import matplotlib.pyplot as plt
 
 DATASET_PATH = './Datasets/celeba'
 TEST_DATASET_PATH = './Datasets/celeba_test'
+LABEL_IMG_NAMES = "img_name"
+LABEL_NAME = "gender"
+
+def loadImgData(dataset_path, labels, img_per_batch, batch_iteration):
+    img_data = []
+
+    for i in range(img_per_batch):
+        img = Image.open(dataset_path + '/img/' + labels[batch_iteration * img_per_batch + i])#.convert('L') # Open images and convert to greyscale
+        img = np.array(img).flatten()
+        
+        img_data.append(img)
+
+    img_data = np.array(img_data)
+
+    return img_data
+
+def unisonShuffleCopies(a, b):
+    assert len(a) == len(b)
+    p = np.random.permutation(len(a))
+    return a[p], b[p]
 
 
 ### LEARNING
 
-# Read the csv file and extract labels for each image
-labels = pd.read_csv(DATASET_PATH + '/labels.csv', delimiter = "\t")
+# Read the csv file and extract label_file for each image
+label_file = pd.read_csv(DATASET_PATH + '/labels.csv', delimiter = "\t")
 
-lab_names = labels["img_name"].values
-lab_gen = labels["gender"].values
+labels = label_file[LABEL_IMG_NAMES].values
+lab_gen = label_file[LABEL_NAME].values
 
 # Read the images and preprocess them
-img_count = len(lab_names)
+img_count = len(labels)
 
-#img_size = Image.open(DATASET_PATH + '/img/' + lab_names[0]).size
+#img_size = Image.open(DATASET_PATH + '/img/' + labels[0]).size
 
 img_per_batch = 1000
 num_batches = int(img_count / img_per_batch)
@@ -46,31 +66,17 @@ av_classes = np.array(np.unique(lab_gen))
 
 
 # Shuffle all the images
-
-def unison_shuffled_copies(a, b):
-    assert len(a) == len(b)
-    p = np.random.permutation(len(a))
-    return a[p], b[p]
-
-lab_gen, lab_names = unison_shuffled_copies(lab_gen, lab_names)
+lab_gen, labels = unisonShuffleCopies(lab_gen, labels)
 
 
 for k in range(num_batches):
 
     print("Starting batch: ", k)
 
-    img_data = []
-
-    for i in range(img_per_batch):
-        img = Image.open(DATASET_PATH + '/img/' + lab_names[k * img_per_batch + i]).convert('L') # Open images and convert to greyscale
-        img = np.array(img).flatten()
-        
-        img_data.append(img)
+    img_data = loadImgData(DATASET_PATH, labels, img_per_batch, k)
 
     X_train = []
     y_train = []
-
-    img_data = np.array(img_data)
 
     X_train = img_data
     y_train = lab_gen[k * img_per_batch:(k+1) * img_per_batch]
@@ -81,16 +87,16 @@ for k in range(num_batches):
 
 ### TESTING
 
-# Read the csv file and extract labels for each image
-labels = pd.read_csv(TEST_DATASET_PATH + '/labels.csv', delimiter = "\t")
+# Read the csv file and extract label_file for each image
+label_file = pd.read_csv(TEST_DATASET_PATH + '/labels.csv', delimiter = "\t")
 
-lab_names = labels["img_name"].values
-lab_gen = labels["gender"].values
+labels = label_file[LABEL_IMG_NAMES].values
+lab_gen = label_file[LABEL_NAME].values
 
 # Read the images and preprocess them
-img_count = len(lab_names)
+img_count = len(labels)
 
-#img_size = Image.open(DATASET_PATH + '/img/' + lab_names[0]).size
+#img_size = Image.open(DATASET_PATH + '/img/' + labels[0]).size
 
 img_per_batch = 1000
 num_batches = int(img_count / img_per_batch)
@@ -101,15 +107,7 @@ for k in range(num_batches):
 
     print("Starting test batch: ", k)
 
-    img_data = []
-
-    for i in range(img_per_batch):
-        img = Image.open(TEST_DATASET_PATH + '/img/' + lab_names[k * img_per_batch + i]).convert('L') # Open images and convert to greyscale
-        img = np.array(img).flatten()
-        
-        img_data.append(img)
-
-    img_data = np.array(img_data)
+    img_data = loadImgData(TEST_DATASET_PATH, labels, img_per_batch, k)
 
     X_test = img_data
 
