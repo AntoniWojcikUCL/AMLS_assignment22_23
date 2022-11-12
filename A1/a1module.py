@@ -35,9 +35,9 @@ def loadImgData(dataset_path, labels, img_per_batch, batch_iteration):
 
     return img_data
 
-def unisonShuffleCopies(a, b):
+def unisonShuffleCopies(a, b, seed):
     assert len(a) == len(b)
-    p = np.random.permutation(len(a))
+    p = np.random.RandomState(seed = seed).permutation(len(a))
     return a[p], b[p]
 
 
@@ -60,13 +60,14 @@ num_batches = int(img_count / img_per_batch)
 # Apply GridSearchCV to find best parameters for given dataset
 # verbose is used to describe the steps taken to find best parameters
 #clf = SVC(gamma=0.001, kernel="rbf")
-clf = SGDClassifier(learning_rate = 'optimal', eta0 = 0.1, shuffle = True)
+clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-4, eta0 = 0.1, shuffle = False, loss = 'log_loss')
+SGDClassifier()
 
 av_classes = np.array(np.unique(lab_gen))
 
 
 # Shuffle all the images
-lab_gen, labels = unisonShuffleCopies(lab_gen, labels)
+lab_gen, labels = unisonShuffleCopies(lab_gen, labels, seed = 42)
 
 
 for k in range(num_batches):
