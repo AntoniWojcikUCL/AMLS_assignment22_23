@@ -17,10 +17,14 @@ from PIL import Image
 import matplotlib.pyplot as plt
 
 
+
+# Constants
 DATASET_PATH = './Datasets/celeba'
 TEST_DATASET_PATH = './Datasets/celeba_test'
 LABEL_IMG_NAMES = "img_name"
 LABEL_NAME = "gender"
+
+# Helper functions
 
 def loadImgData(dataset_path, labels, img_per_batch, batch_iteration):
     img_data = []
@@ -37,8 +41,10 @@ def loadImgData(dataset_path, labels, img_per_batch, batch_iteration):
 
 def unisonShuffleCopies(a, b, seed):
     assert len(a) == len(b)
+
     p = np.random.RandomState(seed = seed).permutation(len(a))
     return a[p], b[p]
+
 
 
 ### LEARNING
@@ -57,19 +63,16 @@ img_count = len(labels)
 img_per_batch = 1000
 num_batches = int(img_count / img_per_batch)
 
-# Apply GridSearchCV to find best parameters for given dataset
-# verbose is used to describe the steps taken to find best parameters
-#clf = SVC(gamma=0.001, kernel="rbf")
+# Select the classifier 
 clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-4, eta0 = 0.1, shuffle = False, loss = 'log_loss')
-SGDClassifier()
 
-av_classes = np.array(np.unique(lab_gen))
-
+# Find the unique 
+uq_classes = np.array(np.unique(lab_gen))
 
 # Shuffle all the images
 lab_gen, labels = unisonShuffleCopies(lab_gen, labels, seed = 42)
 
-
+# Make the model learn on batches of images
 for k in range(num_batches):
 
     print("Starting batch: ", k)
@@ -83,7 +86,7 @@ for k in range(num_batches):
     y_train = lab_gen[k * img_per_batch:(k+1) * img_per_batch]
 
     # Learn the digits on the train subset
-    clf.partial_fit(X_train, y_train, classes=av_classes)
+    clf.partial_fit(X_train, y_train, classes=uq_classes)
 
 
 ### TESTING
@@ -119,12 +122,9 @@ for k in range(num_batches):
     y_predicted[k * img_per_batch:(k+1) * img_per_batch] = predicted[:]
 
 
+# Print the results
 print("Labels: ", lab_gen)
 print("Predicted: ", y_predicted)
 
 score = np.sum(lab_gen == y_predicted) / img_count
 print("Score: ", score)
-
-#classifier.fit(x_train, y_train)
-#clf.partial_fit(X_minibatch, y_minibatch)
-#y_pred = classifier.predict(x_test)
