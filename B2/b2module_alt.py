@@ -2,7 +2,6 @@ import numpy as np
 import pandas as pd
 
 # Sklearn libraries
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report
@@ -53,3 +52,5 @@ grid_predictions = clf_grid.predict(X_test)
    
 # print classification report 
 print(classification_report(y_test, grid_predictions)) 
+
+print(clf_grid.predict_proba(X[0:10, :]))
