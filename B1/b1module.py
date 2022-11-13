@@ -8,7 +8,7 @@ from sklearn.ensemble import RandomForestClassifier
 import cv2
 
 DATASET_PATH = './Datasets/cartoon_set'
-TEST_DATASET_PATH = './Datasets/cartoon_set'
+TEST_DATASET_PATH = './Datasets/cartoon_set_test'
 LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "face_shape"
 
