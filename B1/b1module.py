@@ -61,7 +61,7 @@ clf.fit(X_train, y_train)
 label_file = pd.read_csv(TEST_DATASET_PATH + '/labels.csv', delimiter = "\t")
 file_names = label_file[LABEL_IMG_NAMES].values
 
-X_test = loadImgData(DATASET_PATH, file_names)
+X_test = loadImgData(TEST_DATASET_PATH, file_names)
 y_test = label_file[LABEL_NAME].values
 
 predicted = clf.predict(X_test)
