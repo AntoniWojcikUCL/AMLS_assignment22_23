@@ -19,10 +19,13 @@ import matplotlib.pyplot as plt
 
 DATASET_PATH = './Datasets/cartoon_set'
 LABEL_IMG_NAMES = "file_name"
+LABEL_NAME = "eye_color"
 
 
 label_file = pd.read_csv(DATASET_PATH + '/labels.csv', delimiter = "\t")
-labels = label_file[LABEL_IMG_NAMES].values
+file_names = label_file[LABEL_IMG_NAMES].values
+labels = label_file[LABEL_NAME].values
+
 
 params = cv2.SimpleBlobDetector_Params()
 
@@ -40,15 +43,15 @@ params.filterByConvexity = False
 
 detector = cv2.SimpleBlobDetector_create(params)
 
+col_data = np.zeros((len(file_names), 7))
 
-col_data = np.zeros((len(labels), 6))
 
-for i in range(len(labels)):
-    img = cv2.imread(DATASET_PATH + '/img/' + labels[i])
+# Find average color and its mean std dev in the blobs and save to a CSV file together with the labels
+for i in range(len(file_names)):
+    img = cv2.imread(DATASET_PATH + '/img/' + file_names[i])
 
     keypoints = detector.detect(img)
 
-    # Find average color and its mean std dev in the blobs
     mask_circle = np.zeros(img.shape[:2], np.uint8)
 
     for j in range(len(keypoints)):
@@ -60,10 +63,11 @@ for i in range(len(labels)):
 
     col_data[i, 0:3] = mean[:, 0]
     col_data[i, 3:6] = std[:, 0]
+    col_data[i, 6] = labels[i]
 
-df = pd.DataFrame(data = col_data, columns = ['B', 'G', 'R', 'S_B', 'S_G', 'S_R'])
+df = pd.DataFrame(data = col_data, columns = ['B', 'G', 'R', 'S_B', 'S_G', 'S_R', 'eye_color'])
 
-df.to_csv('./B2/col_data.csv', sep = "\t")
+df.to_csv('./B2/col_data.csv', sep = "\t", index = False)
 
 # img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
 
