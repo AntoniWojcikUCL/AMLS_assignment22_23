@@ -103,5 +103,5 @@ y_test = label_file[LABEL_NAME].values
 print(clf_grid.best_params_) 
 grid_predictions = clf_grid.predict(X_test) 
    
-# print classification report 
+# Print classification report 
 print(classification_report(y_test, grid_predictions)) 
