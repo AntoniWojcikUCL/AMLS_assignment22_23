@@ -3,7 +3,6 @@ import pandas as pd
 
 # Sklearn libraries
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import train_test_split
 
 # Image manipulation libraries
 import cv2
