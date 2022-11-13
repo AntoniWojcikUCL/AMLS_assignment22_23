@@ -13,6 +13,9 @@ TEST_DATASET_PATH = './Datasets/cartoon_set'
 LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "face_shape"
 
+ENABLE_RESIZE = True
+RESIZE_SCALING = 0.5
+
 def loadImgData(dataset_path, img_names):
     img_data = []
 
@@ -23,12 +26,13 @@ def loadImgData(dataset_path, img_names):
 
         edges = cv2.Canny(image = img_gray, threshold1 = 500, threshold2 = 800) # Canny Edge Detection
 
-        h, w = edges.shape
+        if ENABLE_RESIZE:
+            h, w = edges.shape
 
-        w = int(w * 0.01)
-        h = int(h * 0.01)
+            w = int(w * RESIZE_SCALING)
+            h = int(h * RESIZE_SCALING)
 
-        edges = cv2.resize(edges, (w, h), interpolation = cv2.INTER_LINEAR)
+            edges = cv2.resize(edges, (w, h), interpolation = cv2.INTER_LINEAR)
 
         edges_bin = cv2.threshold(edges, 127, 255, cv2.THRESH_BINARY)[1]
 
