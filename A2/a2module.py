@@ -14,7 +14,7 @@ import cv2
 DATASET_PATH = './Datasets/celeba'
 TEST_DATASET_PATH = './Datasets/celeba_test'
 LABEL_IMG_NAMES = "img_name"
-LABEL_NAME = "gender"
+LABEL_NAME = "smiling"
 
 # Helper functions
 
@@ -26,9 +26,10 @@ def loadImgData(dataset_path, img_names):
 
         h, w, _ = img.shape
 
-        #img = img[int(3 * h / 5):int(4 * h / 5), int(3 * w / 8):int(5 * w / 8)]
+        img = img[int(1 * h / 5):int(4 * h / 5), int(2 * w / 8):int(6 * w / 8)]
 
-        img = np.array(img).flatten()
+        # Normalize the image so that values stay low
+        img = np.array(img, dtype = np.single).flatten() / 255.0
         
         img_data.append(img)
 
@@ -55,7 +56,7 @@ y_train = label_file[LABEL_NAME].values
 X_train = loadImgData(DATASET_PATH, file_names)
 
 # Select the classifier 
-clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, eta0 = 0.1, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42)
+clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, eta0 = 0.1, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42, )
 
 # Learn the digits on the train subset
 clf.fit(X_train, y_train)
