@@ -3,6 +3,7 @@ import pandas as pd
 
 # Sklearn libraries
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
 
 # Image manipulation libraries
 import cv2
@@ -52,7 +53,7 @@ file_names = label_file[LABEL_IMG_NAMES].values
 X_train = loadImgData(DATASET_PATH, file_names)
 y_train = label_file[LABEL_NAME].values
 
-clf = RandomForestClassifier(random_state = 42)
+clf = RandomForestClassifier(random_state = 42, n_jobs = -1, verbose = True)
 
 clf.fit(X_train, y_train)
 
@@ -70,3 +71,6 @@ print("Labels: ", y_test)
 print("Predicted: ", predicted)
 
 print("Score: ", clf.score(X_test, y_test))
+
+# Print classification report 
+print(classification_report(y_test, predicted)) 

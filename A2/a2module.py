@@ -52,7 +52,7 @@ X_train = loadImgData(DATASET_PATH, file_names)
 y_train = LabelEncoder().fit_transform(y_train)
 
 # Select the classifier 
-clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42, n_jobs = 4)
+clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42, n_jobs = -1)
 
 # Learn the digits on the train subset
 clf.fit(X_train, y_train)

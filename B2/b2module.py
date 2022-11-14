@@ -5,7 +5,6 @@ import pandas as pd
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn.metrics import classification_report
-from sklearn.model_selection import train_test_split
 
 # Image manipulation libraries
 import cv2
@@ -84,9 +83,9 @@ y_train = label_file[LABEL_NAME].values
 # Define the classifier and the param grid
 clf = KNeighborsClassifier()
 
-param_grid = {'n_neighbors': np.arange(1, 5)}
+param_grid = {'n_neighbors': np.arange(1, 10)}
 
-clf_grid = GridSearchCV(clf, param_grid, cv = 5)
+clf_grid = GridSearchCV(clf, param_grid, cv = 5, verbose = True)
 
 # Train the model
 clf_grid.fit(X_train, y_train)
