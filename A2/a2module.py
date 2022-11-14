@@ -3,10 +3,7 @@ import pandas as pd
 
 # Sklearn libraries
 from sklearn.linear_model import SGDClassifier
-from sklearn.model_selection import GridSearchCV
-from sklearn import metrics
 from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
 
 # Image manipulation libraries
@@ -52,9 +49,7 @@ y_train = label_file[LABEL_NAME].values
 
 X_train = loadImgData(DATASET_PATH, file_names)
 
-encoder = LabelEncoder()
-encoder.fit(y_train)
-y_train = encoder.transform(y_train)
+y_train = LabelEncoder().fit_transform(y_train)
 
 # Select the classifier 
 clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42, n_jobs = 4)
@@ -73,9 +68,7 @@ y_test = label_file[LABEL_NAME].values
 
 X_test = loadImgData(TEST_DATASET_PATH, file_names)
 
-encoder = LabelEncoder()
-encoder.fit(y_test)
-y_test = encoder.transform(y_test)
+y_test = LabelEncoder().fit_transform(y_test)
 
 # Learn the digits on the train subset
 predicted = clf.predict(X_test)
