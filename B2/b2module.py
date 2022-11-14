@@ -17,7 +17,8 @@ LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "eye_color"
 
 SAVE_DATA = True
-READ_DATA = True
+READ_DATA = False
+DEBUG_EYE_DETECTION = False
 
 
 # Load image data and preprocess it to extract mean eye colors and their std dev for each image 
@@ -43,7 +44,7 @@ def loadImgData(dataset_path, file_names, out_file_name):
         params.minCircularity = 0.2
         
         params.filterByInertia = True
-        params.minInertiaRatio = 0.3
+        params.minInertiaRatio = 0.24
 
         params.filterByConvexity = False
 
@@ -56,6 +57,15 @@ def loadImgData(dataset_path, file_names, out_file_name):
 
             # Find locations of the eyes and their approximate sizes
             keypoints = detector.detect(img)
+
+            if DEBUG_EYE_DETECTION:
+                img_debug = cv2.drawKeypoints(img, keypoints, np.array([]), (0, 255, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+ 
+                # Show keypoints
+                cv2.imshow("Keypoints", img_debug)
+                cv2.waitKey(0)
+
+                exit()
 
             # Create circular masks around the eyes and combine them
             mask_circle = np.zeros(img.shape[:2], np.uint8)
