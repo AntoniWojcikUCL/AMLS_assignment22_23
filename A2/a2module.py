@@ -3,6 +3,8 @@ import pandas as pd
 
 # Sklearn libraries
 from sklearn.linear_model import SGDClassifier
+from sklearn.model_selection import GridSearchCV
+from sklearn import metrics
 from sklearn.metrics import classification_report
 
 # Image manipulation libraries
@@ -37,13 +39,6 @@ def loadImgData(dataset_path, img_names):
 
     return img_data
 
-def unisonShuffleCopies(a, b, seed):
-    assert len(a) == len(b)
-
-    p = np.random.RandomState(seed = seed).permutation(len(a))
-    return a[p], b[p]
-
-
 
 ### TRAINING
 
@@ -56,10 +51,20 @@ y_train = label_file[LABEL_NAME].values
 X_train = loadImgData(DATASET_PATH, file_names)
 
 # Select the classifier 
-clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, eta0 = 0.1, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42, )
+parameters = {
+    'learning_rate': ['optimal'],
+    'random_state': [42],
+    'loss': ('log_loss', 'hinge', 'perceptron'),
+    'penalty': ['l1', 'l2', 'elasticnet'],
+    'alpha': [1e-3, 1e-4, 1e-5, 1e-6]
+}
+
+clf_grid = GridSearchCV(SGDClassifier(), parameters, cv = 5, verbose = 2)
+
+#clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, eta0 = 0.1, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42)
 
 # Learn the digits on the train subset
-clf.fit(X_train, y_train)
+clf_grid.fit(X_train, y_train)
 
 
 ### TESTING
@@ -73,12 +78,21 @@ y_test = label_file[LABEL_NAME].values
 X_test = loadImgData(TEST_DATASET_PATH, file_names)
 
 # Learn the digits on the train subset
-predicted = clf.predict(X_test)
+predicted = clf_grid.predict(X_test)
 
 # Print the results
 print("Labels: ", y_test)
 print("Predicted: ", predicted)
 
-print("Score: ", clf.score(X_test, y_test))
+grid_predictions = clf_grid.predict(X_test) 
+   
+# Print classification report 
+print(classification_report(y_test, grid_predictions)) 
 
-print(classification_report(y_test, predicted)) 
+
+# PRINT BEST PARAMS
+print("Best score: %0.3f" % (clf_grid.best_score_))
+print("Best parameters set:")
+best_parameters = clf_grid.best_params_
+for param_name in sorted(parameters.keys()):
+    print("\t%s: %r" % (param_name, best_parameters[param_name]))
