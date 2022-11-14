@@ -54,12 +54,13 @@ X_train = loadImgData(DATASET_PATH, file_names)
 parameters = {
     'learning_rate': ['optimal'],
     'random_state': [42],
+    'alpha': [1e-5, 1e-6],
     'loss': ('log_loss', 'hinge', 'perceptron'),
-    'penalty': ['l1', 'l2', 'elasticnet'],
-    'alpha': [1e-3, 1e-4, 1e-5, 1e-6]
+    'penalty': ['l1', 'l2'],
+    'max_iter': [3000]
 }
 
-clf_grid = GridSearchCV(SGDClassifier(), parameters, cv = 5, verbose = 2)
+clf_grid = GridSearchCV(SGDClassifier(), parameters, cv = 10, verbose = 2)
 
 #clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, eta0 = 0.1, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42)
 
