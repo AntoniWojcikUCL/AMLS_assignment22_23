@@ -5,8 +5,6 @@ import pandas as pd
 from sklearn.linear_model import SGDClassifier
 from sklearn.model_selection import GridSearchCV
 from sklearn import metrics
-from sklearn.preprocessing import LabelEncoder
-from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import classification_report
 
 # Image manipulation libraries
@@ -52,15 +50,23 @@ y_train = label_file[LABEL_NAME].values
 
 X_train = loadImgData(DATASET_PATH, file_names)
 
-encoder = LabelEncoder()
-encoder.fit(y_train)
-y_train = encoder.transform(y_train)
-
 # Select the classifier 
-clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42, n_jobs = 4)
+parameters = {
+    'learning_rate': ['optimal'],
+    'random_state': [42],
+    'alpha': [1e-5, 1e-4],
+    'loss': ['log_loss', 'perceptron'],
+    'penalty': ['l1'],
+    'max_iter': [3000]
+}
+
+clf_grid = GridSearchCV(SGDClassifier(), parameters, cv = 10, verbose = 2)
+
+#clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, pentalty = 'l1', 
+# max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42)
 
 # Learn the digits on the train subset
-clf.fit(X_train, y_train)
+clf_grid.fit(X_train, y_train)
 
 
 ### TESTING
@@ -73,20 +79,22 @@ y_test = label_file[LABEL_NAME].values
 
 X_test = loadImgData(TEST_DATASET_PATH, file_names)
 
-encoder = LabelEncoder()
-encoder.fit(y_test)
-y_test = encoder.transform(y_test)
-
 # Learn the digits on the train subset
-predicted = clf.predict(X_test)
-
+predicted = clf_grid.predict(X_test)
 
 # Print the results
 print("Labels: ", y_test)
 print("Predicted: ", predicted)
-print("Score:", clf.score(X_test, y_test))
 
-predictions = clf.predict(X_test) 
+grid_predictions = clf_grid.predict(X_test) 
    
 # Print classification report 
-print(classification_report(y_test, predictions)) 
+print(classification_report(y_test, grid_predictions)) 
+
+
+# PRINT BEST PARAMS
+print("Best score: %0.3f" % (clf_grid.best_score_))
+print("Best parameters set:")
+best_parameters = clf_grid.best_params_
+for param_name in sorted(parameters.keys()):
+    print("\t%s: %r" % (param_name, best_parameters[param_name]))
