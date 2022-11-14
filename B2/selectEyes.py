@@ -1,20 +1,8 @@
 import numpy as np
 import pandas as pd
 
-# Sklearn libraries
-from sklearn.neural_network import MLPClassifier 
-from sklearn.model_selection import GridSearchCV
-from sklearn.linear_model import SGDClassifier
-from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn import metrics
-
 # Image manipulation libraries
 import cv2
-
-# Plotting libraries
-import matplotlib.pyplot as plt
 
 
 DATASET_PATH = './Datasets/cartoon_set'
