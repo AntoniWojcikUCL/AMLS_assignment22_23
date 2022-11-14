@@ -2,19 +2,12 @@ import numpy as np
 import pandas as pd
 
 # Sklearn libraries
-from sklearn.neural_network import MLPClassifier 
-from sklearn.model_selection import GridSearchCV
 from sklearn.linear_model import SGDClassifier
-from sklearn.decomposition import PCA
-from sklearn.model_selection import train_test_split
-from sklearn.svm import SVC
-from sklearn import metrics
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import classification_report
 
 # Image manipulation libraries
-from PIL import Image
-
-# Plotting libraries
-import matplotlib.pyplot as plt
+import cv2
 
 
 
@@ -26,12 +19,14 @@ LABEL_NAME = "gender"
 
 # Helper functions
 
-def loadImgData(dataset_path, labels, img_per_batch, batch_iteration):
+def loadImgData(dataset_path, img_names):
     img_data = []
 
-    for i in range(img_per_batch):
-        img = Image.open(dataset_path + '/img/' + labels[batch_iteration * img_per_batch + i])#.convert('L') # Open images and convert to greyscale
-        img = np.array(img).flatten()
+    for i in range(len(img_names)):
+        img = cv2.imread(dataset_path + '/img/' + img_names[i])
+
+        # Normalize the image so that values stay low
+        img = np.array(img, dtype = np.single).flatten() / 255.0
         
         img_data.append(img)
 
@@ -39,54 +34,24 @@ def loadImgData(dataset_path, labels, img_per_batch, batch_iteration):
 
     return img_data
 
-def unisonShuffleCopies(a, b, seed):
-    assert len(a) == len(b)
 
-    p = np.random.RandomState(seed = seed).permutation(len(a))
-    return a[p], b[p]
-
-
-
-### LEARNING
+### TRAINING
 
 # Read the csv file and extract label_file for each image
 label_file = pd.read_csv(DATASET_PATH + '/labels.csv', delimiter = "\t")
 
-labels = label_file[LABEL_IMG_NAMES].values
-lab_gen = label_file[LABEL_NAME].values
+file_names = label_file[LABEL_IMG_NAMES].values
+y_train = label_file[LABEL_NAME].values
 
-# Read the images and preprocess them
-img_count = len(labels)
+X_train = loadImgData(DATASET_PATH, file_names)
 
-#img_size = Image.open(DATASET_PATH + '/img/' + labels[0]).size
-
-img_per_batch = 1000
-num_batches = int(img_count / img_per_batch)
+y_train = LabelEncoder().fit_transform(y_train)
 
 # Select the classifier 
-clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-4, eta0 = 0.1, shuffle = False, loss = 'log_loss')
+clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42, n_jobs = 4)
 
-# Find the unique 
-uq_classes = np.array(np.unique(lab_gen))
-
-# Shuffle all the images
-lab_gen, labels = unisonShuffleCopies(lab_gen, labels, seed = 42)
-
-# Make the model learn on batches of images
-for k in range(num_batches):
-
-    print("Starting batch: ", k)
-
-    img_data = loadImgData(DATASET_PATH, labels, img_per_batch, k)
-
-    X_train = []
-    y_train = []
-
-    X_train = img_data
-    y_train = lab_gen[k * img_per_batch:(k+1) * img_per_batch]
-
-    # Learn the digits on the train subset
-    clf.partial_fit(X_train, y_train, classes=uq_classes)
+# Learn the digits on the train subset
+clf.fit(X_train, y_train)
 
 
 ### TESTING
@@ -94,37 +59,23 @@ for k in range(num_batches):
 # Read the csv file and extract label_file for each image
 label_file = pd.read_csv(TEST_DATASET_PATH + '/labels.csv', delimiter = "\t")
 
-labels = label_file[LABEL_IMG_NAMES].values
-lab_gen = label_file[LABEL_NAME].values
+file_names = label_file[LABEL_IMG_NAMES].values
+y_test = label_file[LABEL_NAME].values
 
-# Read the images and preprocess them
-img_count = len(labels)
+X_test = loadImgData(TEST_DATASET_PATH, file_names)
 
-#img_size = Image.open(DATASET_PATH + '/img/' + labels[0]).size
+y_test = LabelEncoder().fit_transform(y_test)
 
-img_per_batch = 1000
-num_batches = int(img_count / img_per_batch)
-
-y_predicted = np.zeros((img_count))
-
-for k in range(num_batches):
-
-    print("Starting test batch: ", k)
-
-    img_data = loadImgData(TEST_DATASET_PATH, labels, img_per_batch, k)
-
-    X_test = img_data
-
-    # Learn the digits on the train subset
-    predicted = clf.predict(X_test)
-
-    # Predict the value of the digit on the test subset
-    y_predicted[k * img_per_batch:(k+1) * img_per_batch] = predicted[:]
+# Learn the digits on the train subset
+predicted = clf.predict(X_test)
 
 
 # Print the results
-print("Labels: ", lab_gen)
-print("Predicted: ", y_predicted)
+print("Labels: ", y_test)
+print("Predicted: ", predicted)
+print("Score:", clf.score(X_test, y_test))
 
-score = np.sum(lab_gen == y_predicted) / img_count
-print("Score: ", score)
+predictions = clf.predict(X_test) 
+   
+# Print classification report 
+print(classification_report(y_test, predictions)) 
