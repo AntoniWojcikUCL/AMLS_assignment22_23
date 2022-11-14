@@ -2,76 +2,82 @@ import numpy as np
 import pandas as pd
 
 # Sklearn libraries
-from sklearn.ensemble import RandomForestClassifier
+from sklearn.linear_model import SGDClassifier
+from sklearn.metrics import classification_report
 
 # Image manipulation libraries
 import cv2
 
+
+
+# Constants
 DATASET_PATH = './Datasets/celeba'
 TEST_DATASET_PATH = './Datasets/celeba_test'
 LABEL_IMG_NAMES = "img_name"
-LABEL_NAME = "smiling"
+LABEL_NAME = "gender"
 
-ENABLE_RESIZE = False
-RESIZE_SCALING = 0.5
+# Helper functions
 
 def loadImgData(dataset_path, img_names):
     img_data = []
 
     for i in range(len(img_names)):
-        img = cv2.imread(dataset_path + '/img/' + file_names[i])
+        img = cv2.imread(dataset_path + '/img/' + img_names[i])
 
-        img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        h, w, _ = img.shape
 
-        edges = cv2.Canny(image = img_gray, threshold1 = 500, threshold2 = 800) # Canny Edge Detection
+        #img = img[int(3 * h / 5):int(4 * h / 5), int(3 * w / 8):int(5 * w / 8)]
 
-        if ENABLE_RESIZE:
-            h, w = edges.shape
-
-            w = int(w * RESIZE_SCALING)
-            h = int(h * RESIZE_SCALING)
-
-            edges = cv2.resize(edges, (w, h), interpolation = cv2.INTER_LINEAR)
-
-        edges_bin = cv2.threshold(edges, 127, 255, cv2.THRESH_BINARY)[1]
-
-        cv2.imshow("AAAA", edges_bin)
-        cv2.waitKey(0)
-
-        return
-
-        img_proc = np.array(edges_bin, dtype = 'uint8').flatten()
+        img = np.array(img).flatten()
         
-        img_data.append(img_proc)
+        img_data.append(img)
 
     img_data = np.array(img_data)
 
     return img_data
 
+def unisonShuffleCopies(a, b, seed):
+    assert len(a) == len(b)
 
-# TRAINING
+    p = np.random.RandomState(seed = seed).permutation(len(a))
+    return a[p], b[p]
 
+
+
+### TRAINING
+
+# Read the csv file and extract label_file for each image
 label_file = pd.read_csv(DATASET_PATH + '/labels.csv', delimiter = "\t")
-file_names = label_file[LABEL_IMG_NAMES].values
 
-X_train = loadImgData(DATASET_PATH, file_names)
+file_names = label_file[LABEL_IMG_NAMES].values
 y_train = label_file[LABEL_NAME].values
 
-clf = RandomForestClassifier(random_state = 42)
+X_train = loadImgData(DATASET_PATH, file_names)
 
+# Select the classifier 
+clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, eta0 = 0.1, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42)
+
+# Learn the digits on the train subset
 clf.fit(X_train, y_train)
 
-# TESTING
 
+### TESTING
+
+# Read the csv file and extract label_file for each image
 label_file = pd.read_csv(TEST_DATASET_PATH + '/labels.csv', delimiter = "\t")
-file_names = label_file[LABEL_IMG_NAMES].values
 
-X_test = loadImgData(TEST_DATASET_PATH, file_names)
+file_names = label_file[LABEL_IMG_NAMES].values
 y_test = label_file[LABEL_NAME].values
 
+X_test = loadImgData(TEST_DATASET_PATH, file_names)
+
+# Learn the digits on the train subset
 predicted = clf.predict(X_test)
 
+# Print the results
 print("Labels: ", y_test)
 print("Predicted: ", predicted)
 
 print("Score: ", clf.score(X_test, y_test))
+
+print(classification_report(y_test, predicted)) 
