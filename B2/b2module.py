@@ -16,9 +16,10 @@ TEST_DATASET_PATH = './Datasets/cartoon_set_test'
 LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "eye_color"
 
-SAVE_DATA = True
-READ_DATA = False
+READ_DATA = True
+SAVE_DATA = False
 DEBUG_EYE_DETECTION = False
+REMOVE_TEST_INVISIBLE_DATAPOINTS = True
 
 
 # Load image data and preprocess it to extract mean eye colors and their std dev for each image 
@@ -27,7 +28,7 @@ def loadImgData(dataset_path, file_names, out_file_name):
 
     # Preapre an array used to store eye color information gathered from the images
     # We are extracting average pixel color in the eye vicinity and its standard deviation
-    col_data = np.zeros((len(file_names), 6))
+    col_data = np.zeros((len(file_names), 7))
 
     if READ_DATA:
         col_data = pd.read_csv('./B2/preprocessed_data/' + out_file_name, delimiter = "\t").to_numpy()
@@ -81,10 +82,11 @@ def loadImgData(dataset_path, file_names, out_file_name):
             # Store the data in the array
             col_data[i, 0:3] = mean[:, 0]
             col_data[i, 3:6] = std[:, 0]
+            col_data[i, 6] = np.any(mean[:, 0] > 55) # If true - probably not sunglasses
 
         if SAVE_DATA:
             # Store the color array in a pandas data frame and save it to a file
-            df = pd.DataFrame(data = col_data, columns = ['B', 'G', 'R', 'S_B', 'S_G', 'S_R'])
+            df = pd.DataFrame(data = col_data, columns = ['B', 'G', 'R', 'S_B', 'S_G', 'S_R', 'Visible'])
 
             df.to_csv('./B2/preprocessed_data/' + out_file_name, sep = "\t", index = False)
 
@@ -94,14 +96,17 @@ label_file = pd.read_csv(DATASET_PATH + '/labels.csv', delimiter = "\t")
 file_names = label_file[LABEL_IMG_NAMES].values
 
 X_train = loadImgData(DATASET_PATH, file_names, "col_data.csv")
+eyes_visible = (X_train[:, 6] > 0)
+X_train = X_train[eyes_visible, 0:6]
 y_train = label_file[LABEL_NAME].values
+y_train = y_train[eyes_visible]
 
 # Define the classifier and the param grid
 clf = KNeighborsClassifier()
 
 param_grid = {'n_neighbors': np.arange(1, 10)}
 
-clf_grid = GridSearchCV(clf, param_grid, cv = 5, n_jobs = -1, verbose = True)
+clf_grid = GridSearchCV(clf, param_grid, cv = 5, n_jobs = -1, verbose = 2)
 
 
 # Train the model
@@ -114,6 +119,11 @@ idx_wrong = (y_train != predict_fit_backwards)
 np.set_printoptions(threshold = sys.maxsize)
 print("Failures in predictions in training data: \n", np.where(idx_wrong))
 
+idx_correct = (idx_wrong == False)
+
+# Retrain the model on datapoints without sunglasses (presumably; I know this is not entirely true)
+clf_grid.fit(X_train[idx_correct], y_train[idx_correct])
+
 
 ### TESTING
 
@@ -122,6 +132,13 @@ file_names = label_file[LABEL_IMG_NAMES].values
 
 X_test = loadImgData(TEST_DATASET_PATH, file_names, "col_data_test.csv")
 y_test = label_file[LABEL_NAME].values
+
+if REMOVE_TEST_INVISIBLE_DATAPOINTS:
+    eyes_visible = (X_test[:, 6] > 0)
+    X_test = X_test[eyes_visible, 0:6]
+    y_test = y_test[eyes_visible]
+else:
+    X_test = X_test[:, 0:6]
 
 print(clf_grid.best_params_) 
 grid_predictions = clf_grid.predict(X_test) 
