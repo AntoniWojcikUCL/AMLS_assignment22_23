@@ -18,6 +18,7 @@ LABEL_NAME = "eye_color"
 
 READ_DATA = True
 SAVE_DATA = False
+USE_HARDCODED_MASKS = True
 DEBUG_EYE_DETECTION = False
 REMOVE_TEST_INVISIBLE_DATAPOINTS = True
 
@@ -52,29 +53,41 @@ def loadImgData(dataset_path, file_names, out_file_name):
         # Create an instance of the blob detector
         detector = cv2.SimpleBlobDetector_create(params)
 
+        # Define the mask array
+        mask_circle = np.zeros(img.shape[:2], np.uint8)
+
+        if USE_HARDCODED_MASKS:
+            radius = 18
+            pt = (294, 260)
+            mask_circle = cv2.circle(mask_circle, center = pt, radius = radius, color = (255, 255, 255), thickness = -1)
+            pt = (205, 260)
+            mask_circle = cv2.circle(mask_circle, center = pt, radius = radius, color = (255, 255, 255), thickness = -1)
+
         # Find average color and its mean std dev in the blobs for each image
         for i in range(len(file_names)):
             img = cv2.imread(dataset_path + '/img/' + file_names[i])
 
-            # Find locations of the eyes and their approximate sizes
-            keypoints = detector.detect(img)
+            if not USE_HARDCODED_MASKS:
+                # Reset the mask for every iteration
+                mask_circle = np.zeros(img.shape[:2], np.uint8)
 
-            if DEBUG_EYE_DETECTION:
-                img_debug = cv2.drawKeypoints(img, keypoints, np.array([]), (0, 255, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
- 
-                # Show keypoints
-                cv2.imshow("Keypoints", img_debug)
-                cv2.waitKey(0)
+                # Find locations of the eyes and their approximate sizes
+                keypoints = detector.detect(img)
 
-                exit()
+                if DEBUG_EYE_DETECTION:
+                    img_debug = cv2.drawKeypoints(img, keypoints, np.array([]), (0, 255, 255), cv2.DRAW_MATCHES_FLAGS_DRAW_RICH_KEYPOINTS)
+    
+                    # Show keypoints
+                    cv2.imshow("Keypoints", img_debug)
+                    cv2.waitKey(0)
 
-            # Create circular masks around the eyes and combine them
-            mask_circle = np.zeros(img.shape[:2], np.uint8)
+                    exit()
 
-            for j in range(len(keypoints)):
-                pt = keypoints[j].pt
-                radius = keypoints[j].size / 2
-                mask_circle = cv2.circle(mask_circle, center = (int(pt[0]), int(pt[1])), radius = int(radius), color = (255, 255, 255), thickness = -1)
+                # Create circular masks around the eyes and combine them
+                for j in range(len(keypoints)):
+                    pt = keypoints[j].pt
+                    radius = keypoints[j].size / 2
+                    mask_circle = cv2.circle(mask_circle, center = (int(pt[0]), int(pt[1])), radius = int(radius), color = (255, 255, 255), thickness = -1)
 
             # Find mean and std dev of pixel color in the mask
             mean, std = cv2.meanStdDev(img, mask = mask_circle)
