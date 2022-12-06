@@ -30,7 +30,7 @@ def loadImgData(dataset_path, img_names):
         img = img[int(1 * h / 5):int(4 * h / 5), int(2 * w / 8):int(6 * w / 8)]
 
         # Normalize the image so that values stay low
-        img = np.array(img, dtype = np.single).flatten() / 255.0
+        img = np.array(img, dtype = np.single) / 255.0
         
         img_data.append(img)
 
@@ -52,7 +52,7 @@ X_train = loadImgData(DATASET_PATH, file_names)
 y_train = LabelEncoder().fit_transform(y_train)
 
 # Select the classifier 
-clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42, n_jobs = -1)
+clf = SGDClassifier(loss = 'perceptron', alpha = 1e-5, penalty = 'l1', random_state = 42, shuffle = True, n_jobs = -1, verbose = True)
 
 # Learn the digits on the train subset
 clf.fit(X_train, y_train)

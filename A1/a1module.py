@@ -67,15 +67,13 @@ X_test = loadImgData(TEST_DATASET_PATH, file_names)
 y_test = LabelEncoder().fit_transform(y_test)
 
 # Learn the digits on the train subset
-predicted = clf.predict(X_test)
+predictions = clf.predict(X_test) 
 
 
 # Print the results
 print("Labels: ", y_test)
-print("Predicted: ", predicted)
+print("Predicted: ", predictions)
 print("Score:", clf.score(X_test, y_test))
-
-predictions = clf.predict(X_test) 
    
 # Print classification report 
 print(classification_report(y_test, predictions)) 
