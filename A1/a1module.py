@@ -2,6 +2,9 @@
 import numpy as np
 import pandas as pd
 
+# Image handling libraries
+import cv2
+
 # Sklearn libraries
 from sklearn.linear_model import SGDClassifier
 from sklearn.svm import SVC
@@ -9,9 +12,6 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_validate
 from sklearn.metrics import classification_report
-
-# Image handling libraries
-import cv2
 
 
 #%% Constants
