@@ -21,13 +21,13 @@ TEST_DATASET_PATH = './Datasets/cartoon_set_test'
 LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "eye_color"
 
-REMOVE_TRAIN_INVISIBLE_DATAPOINTS = True
-REMOVE_TEST_INVISIBLE_DATAPOINTS = False
+DEF_REMOVE_TRAIN_INVISIBLE_DATAPOINTS = True
+DEF_REMOVE_TEST_INVISIBLE_DATAPOINTS = True
 
-DEBUG_IMG_PREVIEW = -1 # Type -1 if none of the images should be shown
-DEBUG_LABEL_SUNGLASSES = False
+DEF_DEBUG_IMG_PREVIEW = -1 # Type -1 if none of the images should be shown
+DEF_DEBUG_LABEL_SUNGLASSES = False
 
-#%% Helper functions
+#%% Helper functions and classes
 class Timer:
     timer = 0
 
@@ -68,7 +68,7 @@ def load_data_source(dataset_path, file_names):
         # Find mean and std dev of pixel color in the mask
         mean, std = cv2.meanStdDev(img, mask = mask_circle)
 
-        if i == DEBUG_IMG_PREVIEW:
+        if i == DEF_DEBUG_IMG_PREVIEW:
             cv2.imshow("Preview of the mask", cv2.bitwise_and(img, img, mask = mask_circle))
             cv2.waitKey(0)
 
@@ -87,7 +87,7 @@ def load_Xy_data(dataset_path, remove_sunglasses: bool):
     X = load_data_source(dataset_path, file_names)
     y = label_file[LABEL_NAME].values
 
-    if DEBUG_LABEL_SUNGLASSES:
+    if DEF_DEBUG_LABEL_SUNGLASSES:
         eyes_not_visible = (X[:, 6] == 0)
         y[eyes_not_visible] = 5
 
@@ -117,11 +117,11 @@ def run_task():
     #%% Load training data
     timer = Timer()
     print("Loading in training data...", end = " ")
-    X_train, y_train = load_Xy_data(DATASET_PATH, remove_sunglasses = REMOVE_TRAIN_INVISIBLE_DATAPOINTS)
+    X_train, y_train = load_Xy_data(DATASET_PATH, remove_sunglasses = DEF_REMOVE_TRAIN_INVISIBLE_DATAPOINTS)
     print("Done in: " + timer.print() + "s\n")
 
 
-    #%% Train the best model
+    #%% Train the model
     timer.reset()
     print("Training the best model...")
     clf_grid.fit(X_train, y_train)
@@ -131,7 +131,7 @@ def run_task():
     #%% Load test data
     timer.reset()
     print("Loading in test data...", end = " ")
-    X_test, y_test = load_Xy_data(TEST_DATASET_PATH, remove_sunglasses = REMOVE_TEST_INVISIBLE_DATAPOINTS)
+    X_test, y_test = load_Xy_data(TEST_DATASET_PATH, remove_sunglasses = DEF_REMOVE_TEST_INVISIBLE_DATAPOINTS)
     print("Done in: " + timer.print() + "s\n")
 
     #%% Testing

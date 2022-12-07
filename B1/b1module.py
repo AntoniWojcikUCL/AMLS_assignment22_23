@@ -94,22 +94,24 @@ def run_task():
 
 
     #%% Load training data
+    timer = Timer()
     print("Loading in training data...", end = " ")
     X_train, y_train = load_Xy_data(DATASET_PATH)
-    print("Done\n")
+    print("Done in " + timer.print() + "s\n")
 
 
     #%% Train the model
+    timer.reset()
     print("Training the model...")
-    timer = Timer()
     clf.fit(X_train, y_train)
     print("Done in " + timer.print() + "s\n")
 
 
     #%% Load test data
+    timer.reset()
     print("Loading in test data...", end = " ")
     X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
-    print("Done\n")
+    print("Done in " + timer.print() + "s\n")
 
 
     #%% Testing

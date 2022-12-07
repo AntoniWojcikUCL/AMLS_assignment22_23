@@ -1,4 +1,7 @@
 #%% Import libraries
+# System libraries
+import time
+
 # Data manipulation libraries
 import numpy as np
 import pandas as pd
@@ -22,7 +25,18 @@ TEST_DATASET_PATH = './Datasets/celeba_test'
 LABEL_IMG_NAMES = "img_name"
 LABEL_NAME = "gender"
 
-#%% Helper functions
+#%% Helper functions and classes
+class Timer:
+    timer = 0
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.timer = time.time()
+
+    def print(self):
+        return str(time.time() - self.timer)
 
 # Load images, preprocess and flatten them, and combine into an array
 def load_data_source(dataset_path, img_names):
@@ -60,7 +74,7 @@ def run_task():
     print("Setting up classifiers...", end = " ")
     clf = []
     clf.append(
-        SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', random_state = 42, n_jobs = -1, verbose = 0)
+        SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', best_iter = 3000, shuffle = True, loss = 'perceptron', random_state = 42, n_jobs = -1, verbose = 0)
     )
     clf.append(
         SVC(gamma = "auto", random_state = 42, verbose = 0)
@@ -68,9 +82,10 @@ def run_task():
     print("Done\n")
 
     #%% Load training data
+    timer = Timer()
     print("Loading in training data...", end = " ")
     X_train, y_train = load_Xy_data(DATASET_PATH)
-    print("Done\n")
+    print("Done in " + timer.print() + "s\n")
 
 
     #%% Cross-validation
@@ -78,9 +93,10 @@ def run_task():
     X_val, _, y_val, _ = train_test_split(X_train, y_train, test_size = 0.8, random_state = 42)
     print("Done\n")
 
-    cv_score_min = float("inf")
-    cv_score_idx_min = 0
+    cv_score_best = float("-inf")
+    cv_score_idx_best = 0
 
+    timer.reset()
     for i in range(len(clf)):
         print("Performing cross-validation of model " + str(i) + "...", end = " ")
         cv_scores = cross_val_score(clf[i], X_val, y_val, scoring = ('f1'), cv = KFold(n_splits = 5), n_jobs = 5, verbose = 2)
@@ -88,28 +104,30 @@ def run_task():
 
         mean_score = np.mean(cv_scores)
 
-        if cv_score_min > mean_score:
-            cv_score_idx_min = i
-            cv_score_min = mean_score
+        if cv_score_best > mean_score:
+            cv_score_idx_best = i
+            cv_score_best = mean_score
 
         print("K-fold cross validation scores: ", cv_scores)
         print("Mean score: ", mean_score, "\n")
 
-    print("Cross-validation done. Best model: " + str(cv_score_idx_min) + "\n")
+    print("Cross-validation done in " + timer.print() + "s.\nBest model: " + str(cv_score_idx_best) + "\n")
 
-    clf_optimal = clf[cv_score_idx_min]
+    clf_optimal = clf[cv_score_idx_best]
 
 
     #%% Train the best model
+    timer.reset()
     print("Training the best model...")
     clf_optimal.fit(X_train, y_train)
-    print("Done\n")
+    print("Done in " + timer.print() + "s\n")
 
 
     #%% Load test data
+    timer.reset()
     print("Loading in test data...", end = " ")
     X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
-    print("Done\n")
+    print("Done in " + timer.print() + "s\n")
 
 
     #%% Testing
