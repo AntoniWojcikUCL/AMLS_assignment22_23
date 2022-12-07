@@ -82,7 +82,7 @@ cv_score_idx_min = 0
 
 for i in range(len(clf)):
     print("Performing cross-validation of model " + str(i) + "...", end = " ")
-    cv_results = cross_validate(clf[i], X_val, y_val, scoring = ('f1'), cv = 5, n_jobs = 5, verbose = 1)
+    cv_results = cross_validate(clf[i], X_val, y_val, scoring = ('f1'), cv = 5, n_jobs = 5, verbose = 0)
     print("Done\n")
 
     mean_score = np.mean(cv_results["test_score"])
