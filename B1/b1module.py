@@ -20,10 +20,6 @@ TEST_DATASET_PATH = './Datasets/cartoon_set_test'
 LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "face_shape"
 
-ENABLE_EDGE_DETECTION = False
-ENABLE_RESIZE = True
-RESIZE_SCALING = 0.5
-
 #%% Helper functions and classes
 class Timer:
     timer = 0
@@ -38,7 +34,7 @@ class Timer:
         return str(time.time() - self.timer)
 
 # Load images, preprocess and flatten them, and combine into an array
-def load_data_source(dataset_path, img_names):
+def load_data_source(dataset_path, img_names, enable_edge_detection = False, enable_resize = False, resize_scaling = 1.0):
     img_data = []
 
     for i in range(len(img_names)):
@@ -46,14 +42,14 @@ def load_data_source(dataset_path, img_names):
 
         img_gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-        if ENABLE_EDGE_DETECTION:
+        if enable_edge_detection:
             edges = cv2.Canny(image = img_gray, threshold1 = 500, threshold2 = 800) # Canny Edge Detection
 
-            if ENABLE_RESIZE:
+            if enable_resize:
                 h, w = edges.shape
 
-                w = int(w * RESIZE_SCALING)
-                h = int(h * RESIZE_SCALING)
+                w = int(w * resize_scaling)
+                h = int(h * resize_scaling)
 
                 edges = cv2.resize(edges, (w, h), interpolation = cv2.INTER_LINEAR)
 
@@ -73,12 +69,12 @@ def load_data_source(dataset_path, img_names):
     return img_data
 
 # Return X, y data of images and labels
-def load_Xy_data(dataset_path):
+def load_Xy_data(dataset_path, enable_edge_detection = False, enable_resize = False, resize_scaling = 1.0):
     # Read the csv file and extract label_file for each image
     label_file = pd.read_csv(dataset_path + '/labels.csv', delimiter = "\t")
     file_names = label_file[LABEL_IMG_NAMES].values
 
-    X = load_data_source(dataset_path, file_names)
+    X = load_data_source(dataset_path, file_names, enable_edge_detection, enable_resize, resize_scaling)
 
     y = label_file[LABEL_NAME].values
 
@@ -86,7 +82,7 @@ def load_Xy_data(dataset_path):
 
 
 # A function to run the code to solve the task A1
-def run_task():
+def run_task(enable_edge_detection = True, enable_resize = True, resize_scaling = 0.5):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
     clf = RandomForestClassifier(random_state = 42, criterion = "entropy", min_samples_split = 20, n_estimators = 100, n_jobs = -1, verbose = True)
@@ -96,7 +92,7 @@ def run_task():
     #%% Load training data
     timer = Timer()
     print("Loading in training data...", end = " ")
-    X_train, y_train = load_Xy_data(DATASET_PATH)
+    X_train, y_train = load_Xy_data(DATASET_PATH, enable_edge_detection, enable_resize, resize_scaling)
     print("Done in " + timer.print() + "s\n")
 
 
@@ -110,7 +106,7 @@ def run_task():
     #%% Load test data
     timer.reset()
     print("Loading in test data...", end = " ")
-    X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
+    X_test, y_test = load_Xy_data(TEST_DATASET_PATH, enable_edge_detection, enable_resize, resize_scaling)
     print("Done in " + timer.print() + "s\n")
 
 

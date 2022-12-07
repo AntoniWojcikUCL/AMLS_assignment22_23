@@ -21,11 +21,7 @@ TEST_DATASET_PATH = './Datasets/cartoon_set_test'
 LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "eye_color"
 
-DEF_REMOVE_TRAIN_INVISIBLE_DATAPOINTS = True
-DEF_REMOVE_TEST_INVISIBLE_DATAPOINTS = True
-
 DEF_DEBUG_IMG_PREVIEW = -1 # Type -1 if none of the images should be shown
-DEF_DEBUG_LABEL_SUNGLASSES = False
 
 #%% Helper functions and classes
 class Timer:
@@ -80,18 +76,18 @@ def load_data_source(dataset_path, file_names):
     return col_data
 
 # Return X, y data of images and labels
-def load_Xy_data(dataset_path, remove_sunglasses: bool):
+def load_Xy_data(dataset_path, remove_sunglasses_datapoints = False, add_sunglasses_labels = False):
     label_file = pd.read_csv(dataset_path  + '/labels.csv', delimiter = "\t")
     file_names = label_file[LABEL_IMG_NAMES].values
 
     X = load_data_source(dataset_path, file_names)
     y = label_file[LABEL_NAME].values
 
-    if DEF_DEBUG_LABEL_SUNGLASSES:
+    if add_sunglasses_labels:
         eyes_not_visible = (X[:, 6] == 0)
         y[eyes_not_visible] = 5
 
-    if(remove_sunglasses):
+    if (not add_sunglasses_labels) and remove_sunglasses_datapoints:
         eyes_visible = (X[:, 6] > 0)
 
         y = y[eyes_visible]
@@ -104,7 +100,12 @@ def load_Xy_data(dataset_path, remove_sunglasses: bool):
 
 
 # A function to run the code to solve the task A1
-def run_task():
+def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp = True):
+    # If we want to add new labels for sunglasses to the data, then we shouldn't remove these datapoints from training and testing
+    if add_sunglasses_lab:
+        rm_train_sun_dp = False
+        rm_test_sun_dp = False
+
     #%% Define the classifier and the param grid
     print("Setting up classifiers...", end = " ")
 
@@ -117,7 +118,7 @@ def run_task():
     #%% Load training data
     timer = Timer()
     print("Loading in training data...", end = " ")
-    X_train, y_train = load_Xy_data(DATASET_PATH, remove_sunglasses = DEF_REMOVE_TRAIN_INVISIBLE_DATAPOINTS)
+    X_train, y_train = load_Xy_data(DATASET_PATH, rm_train_sun_dp, add_sunglasses_lab)
     print("Done in: " + timer.print() + "s\n")
 
 
@@ -131,7 +132,7 @@ def run_task():
     #%% Load test data
     timer.reset()
     print("Loading in test data...", end = " ")
-    X_test, y_test = load_Xy_data(TEST_DATASET_PATH, remove_sunglasses = DEF_REMOVE_TEST_INVISIBLE_DATAPOINTS)
+    X_test, y_test = load_Xy_data(TEST_DATASET_PATH, rm_test_sun_dp, add_sunglasses_lab)
     print("Done in: " + timer.print() + "s\n")
 
     #%% Testing
