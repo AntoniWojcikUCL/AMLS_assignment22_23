@@ -16,7 +16,7 @@ TEST_DATASET_PATH = './Datasets/cartoon_set_test'
 LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "face_shape"
 
-ENABLE_EDGE_DETECTION = True
+ENABLE_EDGE_DETECTION = False
 ENABLE_RESIZE = True
 RESIZE_SCALING = 0.5
 
@@ -51,7 +51,7 @@ def load_data_source(dataset_path, img_names):
         else:
             img_gray = np.array(img_gray, dtype = np.single).flatten() / 255.0
         
-            img_data.append(img)
+            img_data.append(img_gray)
 
     img_data = np.array(img_data)
 
