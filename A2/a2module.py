@@ -56,62 +56,69 @@ def load_Xy_data(dataset_path):
     return X, y
 
 
-#%% Select the classifiers
-print("Setting up classifiers...", end = " ")
+# A function to run the code to solve the task A1
+def run_task():
+    #%% Select the classifiers
+    print("Setting up classifiers...", end = " ")
 
-parameters = {
-    'learning_rate': ['optimal'],
-    'random_state': [42],
-    'alpha': [1e-5, 1e-4],
-    'loss': ['log_loss', 'perceptron'],
-    'penalty': ['l1', 'l2'],
-    'max_iter': [3000]
-}
+    parameters = {
+        'learning_rate': ['optimal'],
+        'random_state': [42],
+        'alpha': [1e-5, 1e-4],
+        'loss': ['log_loss', 'perceptron'],
+        'penalty': ['l1', 'l2'],
+        'max_iter': [3000]
+    }
 
-clf_grid = GridSearchCV(SGDClassifier(), parameters, scoring = ('f1'), cv = 5, refit = True, n_jobs = -1, verbose = 2)
+    clf_grid = GridSearchCV(SGDClassifier(), parameters, scoring = ('f1'), cv = 5, refit = True, n_jobs = -1, verbose = 2)
 
-#clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, pentalty = 'l1', 
-# max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42)
-print("Done\n")
-
-
-#%% Load training data
-print("Loading in training data...", end = " ")
-X_train, y_train = load_Xy_data(DATASET_PATH)
-print("Done\n")
+    #clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, pentalty = 'l1', 
+    # max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42)
+    print("Done\n")
 
 
-#%% Cross-validation and fitting the best model
-print("Performing cross-validation of all the models and training the best model on all the data...", end = " ")
-clf_grid.fit(X_train, y_train)
-print("Done\n")
+    #%% Load training data
+    print("Loading in training data...", end = " ")
+    X_train, y_train = load_Xy_data(DATASET_PATH)
+    print("Done\n")
 
 
-#%% Load test data
-print("Loading in test data...", end = " ")
-X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
-print("Done\n")
+    #%% Cross-validation and fitting the best model
+    print("Performing cross-validation of all the models and training the best model on all the data...", end = " ")
+    clf_grid.fit(X_train, y_train)
+    print("Done\n")
 
 
-#%% Testing
-print("Obtaining model predictions\n")
-predictions = clf_grid.predict(X_test) 
+    #%% Load test data
+    print("Loading in test data...", end = " ")
+    X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
+    print("Done\n")
 
 
-#%% Print the results
-print("Results:\n")
-print("Labels: ", y_test)
-print("Predicted: ", predictions)
-   
-# Print the classification report 
-print(classification_report(y_test, predictions)) 
+    #%% Testing
+    print("Obtaining model predictions\n")
+    predictions = clf_grid.predict(X_test) 
 
-# Print cross validation scores for the whole grid
-print("Mean cross-validation test scores: ", clf_grid.cv_results_["mean_test_score"])
 
-# Print the best params in the grid
-print("Best score: %0.3f" % (clf_grid.best_score_))
-print("Best parameters set:")
-best_parameters = clf_grid.best_params_
-for param_name in sorted(parameters.keys()):
-    print("\t%s: %r" % (param_name, best_parameters[param_name]))
+    #%% Print the results
+    print("Results:\n")
+    print("Labels: ", y_test)
+    print("Predicted: ", predictions)
+    
+    # Print the classification report 
+    print(classification_report(y_test, predictions)) 
+
+    # Print cross validation scores for the whole grid
+    print("Mean cross-validation test scores: ", clf_grid.cv_results_["mean_test_score"])
+
+    # Print the best params in the grid
+    print("Best score: %0.3f" % (clf_grid.best_score_))
+    print("Best parameters set:")
+    best_parameters = clf_grid.best_params_
+    for param_name in sorted(parameters.keys()):
+        print("\t%s: %r" % (param_name, best_parameters[param_name]))
+
+
+# Execute the code if the script is run on its own
+if __name__ == "__main__":
+    run_task()

@@ -85,41 +85,48 @@ def load_Xy_data(dataset_path):
     return X, y
 
 
-#%% Select the classifiers
-print("Setting up classifiers...", end = " ")
-clf = RandomForestClassifier(random_state = 42, criterion = "entropy", min_samples_split = 20, n_estimators = 100, n_jobs = -1, verbose = True)
-print("Done\n")
+# A function to run the code to solve the task A1
+def run_task():
+    #%% Select the classifiers
+    print("Setting up classifiers...", end = " ")
+    clf = RandomForestClassifier(random_state = 42, criterion = "entropy", min_samples_split = 20, n_estimators = 100, n_jobs = -1, verbose = True)
+    print("Done\n")
 
 
-#%% Load training data
-print("Loading in training data...", end = " ")
-X_train, y_train = load_Xy_data(DATASET_PATH)
-print("Done\n")
+    #%% Load training data
+    print("Loading in training data...", end = " ")
+    X_train, y_train = load_Xy_data(DATASET_PATH)
+    print("Done\n")
 
 
-#%% Train the model
-print("Training the model...")
-timer = Timer()
-clf.fit(X_train, y_train)
-print("Done in " + timer.print() + "s\n")
+    #%% Train the model
+    print("Training the model...")
+    timer = Timer()
+    clf.fit(X_train, y_train)
+    print("Done in " + timer.print() + "s\n")
 
 
-#%% Load test data
-print("Loading in test data...", end = " ")
-X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
-print("Done\n")
+    #%% Load test data
+    print("Loading in test data...", end = " ")
+    X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
+    print("Done\n")
 
 
-#%% Testing
-print("Obtaining model predictions\n")
-predictions = clf.predict(X_test) 
+    #%% Testing
+    print("Obtaining model predictions\n")
+    predictions = clf.predict(X_test) 
 
 
-#%% Print the results
-print("Results:\n")
-print("Labels: ", y_test)
-print("Predicted: ", predictions)
-print("Score:", clf.score(X_test, y_test))
-   
-# Print the classification report 
-print(classification_report(y_test, predictions)) 
+    #%% Print the results
+    print("Results:\n")
+    print("Labels: ", y_test)
+    print("Predicted: ", predictions)
+    print("Score:", clf.score(X_test, y_test))
+    
+    # Print the classification report 
+    print(classification_report(y_test, predictions)) 
+
+
+# Execute the code if the script is run on its own
+if __name__ == "__main__":
+    run_task()

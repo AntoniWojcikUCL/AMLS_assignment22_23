@@ -103,42 +103,49 @@ def load_Xy_data(dataset_path, remove_sunglasses: bool):
     return X, y
 
 
-#%% Define the classifier and the param grid
-print("Setting up classifiers...", end = " ")
+# A function to run the code to solve the task A1
+def run_task():
+    #%% Define the classifier and the param grid
+    print("Setting up classifiers...", end = " ")
 
-param_grid = {'n_neighbors': np.arange(1, 10)}
+    param_grid = {'n_neighbors': np.arange(1, 10)}
 
-clf_grid = GridSearchCV(KNeighborsClassifier(), param_grid, cv = 5, n_jobs = -1, verbose = 2)
-print("Done\n")
-
-
-#%% Load training data
-timer = Timer()
-print("Loading in training data...", end = " ")
-X_train, y_train = load_Xy_data(DATASET_PATH, remove_sunglasses = REMOVE_TRAIN_INVISIBLE_DATAPOINTS)
-print("Done in: " + timer.print() + "s\n")
+    clf_grid = GridSearchCV(KNeighborsClassifier(), param_grid, cv = 5, n_jobs = -1, verbose = 2)
+    print("Done\n")
 
 
-#%% Train the best model
-timer.reset()
-print("Training the best model...")
-clf_grid.fit(X_train, y_train)
-print("Done in: " + timer.print() + "s\n")
+    #%% Load training data
+    timer = Timer()
+    print("Loading in training data...", end = " ")
+    X_train, y_train = load_Xy_data(DATASET_PATH, remove_sunglasses = REMOVE_TRAIN_INVISIBLE_DATAPOINTS)
+    print("Done in: " + timer.print() + "s\n")
 
 
-#%% Load test data
-timer.reset()
-print("Loading in test data...", end = " ")
-X_test, y_test = load_Xy_data(TEST_DATASET_PATH, remove_sunglasses = REMOVE_TEST_INVISIBLE_DATAPOINTS)
-print("Done in: " + timer.print() + "s\n")
+    #%% Train the best model
+    timer.reset()
+    print("Training the best model...")
+    clf_grid.fit(X_train, y_train)
+    print("Done in: " + timer.print() + "s\n")
 
-#%% Testing
-print("Obtaining model predictions\n")
-grid_predictions = clf_grid.predict(X_test) 
-   
-#%% Print the results
 
-# Print the best value for K in KNN
-print(clf_grid.best_params_) 
-# Print classification report 
-print(classification_report(y_test, grid_predictions)) 
+    #%% Load test data
+    timer.reset()
+    print("Loading in test data...", end = " ")
+    X_test, y_test = load_Xy_data(TEST_DATASET_PATH, remove_sunglasses = REMOVE_TEST_INVISIBLE_DATAPOINTS)
+    print("Done in: " + timer.print() + "s\n")
+
+    #%% Testing
+    print("Obtaining model predictions\n")
+    grid_predictions = clf_grid.predict(X_test) 
+    
+    #%% Print the results
+
+    # Print the best value for K in KNN
+    print(clf_grid.best_params_) 
+    # Print classification report 
+    print(classification_report(y_test, grid_predictions)) 
+
+
+# Execute the code if the script is run on its own
+if __name__ == "__main__":
+    run_task()
