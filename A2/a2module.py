@@ -9,7 +9,6 @@ import cv2
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import GridSearchCV
-from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
 
 
@@ -58,7 +57,7 @@ def load_Xy_data(dataset_path):
 
 #%% Select the classifiers
 print("Setting up classifiers...", end = " ")
-# Select the classifier 
+
 parameters = {
     'learning_rate': ['optimal'],
     'random_state': [42],
