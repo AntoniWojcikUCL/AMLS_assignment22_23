@@ -24,6 +24,8 @@ LABEL_NAME = "eye_color"
 REMOVE_TRAIN_INVISIBLE_DATAPOINTS = True
 REMOVE_TEST_INVISIBLE_DATAPOINTS = True
 
+DEBUG_IMG_PREVIEW = True
+
 #%% Helper functions
 class Timer:
     timer = 0
@@ -102,7 +104,7 @@ print("Done\n")
 
 
 #%% Load training data
-timer = Timer
+timer = Timer()
 print("Loading in training data...", end = " ")
 X_train, y_train = load_Xy_data(DATASET_PATH, remove_sunglasses = REMOVE_TRAIN_INVISIBLE_DATAPOINTS)
 print("Done in: " + timer.print() + "s\n")
