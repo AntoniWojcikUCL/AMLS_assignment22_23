@@ -15,12 +15,10 @@ from sklearn.metrics import classification_report
 
 
 #%% Constants
-
 DATASET_PATH = './Datasets/celeba'
 TEST_DATASET_PATH = './Datasets/celeba_test'
 LABEL_IMG_NAMES = "img_name"
 LABEL_NAME = "gender"
-
 
 #%% Helper functions
 
@@ -99,9 +97,7 @@ print("Cross-validation done. Best model: " + str(cv_score_idx_min) + "\n")
 clf_optimal = clf[cv_score_idx_min]
 
 
-#%% Training
-
-# Learn the digits on the train subset
+#%% Train the best model
 print("Fitting the best model...")
 clf_optimal.fit(X_train, y_train)
 print("Done\n")
@@ -114,8 +110,6 @@ print("Done\n")
 
 
 #%% Testing
-
-# Learn the digits on the train subset
 print("Obtaining model predictions\n")
 predictions = clf_optimal.predict(X_test) 
 
@@ -126,5 +120,5 @@ print("Labels: ", y_test)
 print("Predicted: ", predictions)
 print("Score:", clf_optimal.score(X_test, y_test))
    
-# Print classification report 
+# Print the classification report 
 print(classification_report(y_test, predictions)) 
