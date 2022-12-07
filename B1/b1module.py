@@ -1,3 +1,7 @@
+#%% Import libraries
+# System libraries
+import time
+
 # Data manipulation libraries
 import numpy as np
 import pandas as pd
@@ -20,7 +24,18 @@ ENABLE_EDGE_DETECTION = False
 ENABLE_RESIZE = True
 RESIZE_SCALING = 0.5
 
-#%% Helper functions
+#%% Helper functions and classes
+class Timer:
+    timer = 0
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.timer = time.time()
+
+    def print(self):
+        return str(time.time() - self.timer)
 
 # Load images, preprocess and flatten them, and combine into an array
 def load_data_source(dataset_path, img_names):
@@ -72,20 +87,21 @@ def load_Xy_data(dataset_path):
 
 #%% Select the classifiers
 print("Setting up classifiers...", end = " ")
-clf = RandomForestClassifier(random_state = 42, n_jobs = -1, verbose = True)
+clf = RandomForestClassifier(random_state = 42, criterion = "entropy", min_samples_split = 20, n_estimators = 100, n_jobs = -1, verbose = True)
 print("Done\n")
 
 
-#%% Load train data
+#%% Load training data
 print("Loading in training data...", end = " ")
 X_train, y_train = load_Xy_data(DATASET_PATH)
 print("Done\n")
 
 
-#%% Train the best model
-print("Fitting the best model...")
+#%% Train the model
+print("Training the model...")
+timer = Timer()
 clf.fit(X_train, y_train)
-print("Done\n")
+print("Done in " + timer.print() + "s\n")
 
 
 #%% Load test data
