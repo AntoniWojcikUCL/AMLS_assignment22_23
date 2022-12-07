@@ -1,3 +1,4 @@
+#%% Import libraries
 # Data manipulation libraries
 import numpy as np
 import pandas as pd
@@ -9,8 +10,9 @@ import cv2
 from sklearn.linear_model import SGDClassifier
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
-from sklearn.model_selection import cross_validate
+from sklearn.model_selection import cross_val_score
 from sklearn.metrics import classification_report
 
 
@@ -56,14 +58,14 @@ def load_Xy_data(dataset_path):
 print("Setting up classifiers...", end = " ")
 clf = []
 clf.append(
-    SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l2', max_iter = 3000, shuffle = True, loss = 'perceptron', random_state = 42, n_jobs = -1, verbose = 0)
+    SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', random_state = 42, n_jobs = -1, verbose = 0)
 )
 clf.append(
     SVC(gamma = "auto", random_state = 42, verbose = 0)
 )
 print("Done\n")
 
-#%% Load train data
+#%% Load training data
 print("Loading in training data...", end = " ")
 X_train, y_train = load_Xy_data(DATASET_PATH)
 print("Done\n")
@@ -71,25 +73,24 @@ print("Done\n")
 
 #%% Cross-validation
 print("Selecting cross validation data...", end = " ")
-X_val, _, y_val, _ = train_test_split(X_train, y_train, test_size = 0.5, random_state = 42)
+X_val, _, y_val, _ = train_test_split(X_train, y_train, test_size = 0.6, random_state = 42)
 print("Done\n")
 
-cv_results = [None] * len(clf)
 cv_score_min = float("inf")
 cv_score_idx_min = 0
 
 for i in range(len(clf)):
     print("Performing cross-validation of model " + str(i) + "...", end = " ")
-    cv_results = cross_validate(clf[i], X_val, y_val, scoring = ('f1'), cv = 5, n_jobs = 5, verbose = 0)
+    cv_scores = cross_val_score(clf[i], X_val, y_val, scoring = ('f1'), cv = KFold(n_splits = 5), n_jobs = 5, verbose = 2)
     print("Done\n")
 
-    mean_score = np.mean(cv_results["test_score"])
+    mean_score = np.mean(cv_scores)
 
     if cv_score_min > mean_score:
         cv_score_idx_min = i
         cv_score_min = mean_score
 
-    print("K-fold cross validation scores: ", cv_results["test_score"])
+    print("K-fold cross validation scores: ", cv_scores)
     print("Mean score: ", mean_score, "\n")
 
 print("Cross-validation done. Best model: " + str(cv_score_idx_min) + "\n")
@@ -98,7 +99,7 @@ clf_optimal = clf[cv_score_idx_min]
 
 
 #%% Train the best model
-print("Fitting the best model...")
+print("Training the best model...")
 clf_optimal.fit(X_train, y_train)
 print("Done\n")
 

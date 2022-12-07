@@ -74,7 +74,7 @@ clf_grid = GridSearchCV(SGDClassifier(), parameters, scoring = ('f1'), cv = 5, r
 print("Done\n")
 
 
-#%% Load train data
+#%% Load training data
 print("Loading in training data...", end = " ")
 X_train, y_train = load_Xy_data(DATASET_PATH)
 print("Done\n")

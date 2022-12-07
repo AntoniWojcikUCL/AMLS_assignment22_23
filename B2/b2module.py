@@ -1,4 +1,7 @@
 #%% Import libraries
+# System libraries
+import time
+
 # Data manipulation libraries
 import numpy as np
 import pandas as pd
@@ -19,13 +22,24 @@ LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "eye_color"
 
 REMOVE_TRAIN_INVISIBLE_DATAPOINTS = True
-REMOVE_TEST_INVISIBLE_DATAPOINTS = False
+REMOVE_TEST_INVISIBLE_DATAPOINTS = True
 
 #%% Helper functions
+class Timer:
+    timer = 0
+
+    def __init__(self):
+        self.reset()
+
+    def reset(self):
+        self.timer = time.time()
+
+    def print(self):
+        return str(time.time() - self.timer)
 
 # Load image data and preprocess it to extract mean eye colors and their std dev for each image 
-# and store the output in a 6 x [image number] array. Also enable saving data to a .csv file
-def load_data_source(dataset_path, file_names, out_file_name):
+# and store the output in a 6 x [image number] array. 
+def load_data_source(dataset_path, file_names):
 
     # Preapre an array used to store eye color information gathered from the images
     # We are extracting average pixel color in the eye vicinity and its standard deviation
@@ -63,7 +77,7 @@ def load_Xy_data(dataset_path, remove_sunglasses: bool):
     label_file = pd.read_csv(dataset_path  + '/labels.csv', delimiter = "\t")
     file_names = label_file[LABEL_IMG_NAMES].values
 
-    X = load_data_source(dataset_path , file_names, "col_data.csv")
+    X = load_data_source(dataset_path , file_names)
     y = label_file[LABEL_NAME].values
 
     if(remove_sunglasses):
@@ -87,34 +101,25 @@ clf_grid = GridSearchCV(KNeighborsClassifier(), param_grid, cv = 5, n_jobs = -1,
 print("Done\n")
 
 
-#%% Load train data
+#%% Load training data
+timer = Timer
 print("Loading in training data...", end = " ")
-X_train, y_train = load_Xy_data(DATASET_PATH, remove_sunglasses = True)
-print("Done\n")
+X_train, y_train = load_Xy_data(DATASET_PATH, remove_sunglasses = REMOVE_TRAIN_INVISIBLE_DATAPOINTS)
+print("Done in: " + timer.print() + "s\n")
 
 
 #%% Train the best model
+timer.reset()
 print("Training the best model...")
 clf_grid.fit(X_train, y_train)
-print("Done\n")
-
-# predict_fit_backwards = clf_grid.predict(X_train) 
-# 
-# idx_wrong = (y_train != predict_fit_backwards)
-# 
-# np.set_printoptions(threshold = sys.maxsize)
-# print("Failures in predictions in training data: \n", np.where(idx_wrong))
-# 
-# idx_correct = (idx_wrong == False)
-# 
-# # Retrain the model on datapoints without sunglasses (presumably; I know this is not entirely true)
-# clf_grid.fit(X_train[idx_correct], y_train[idx_correct])
+print("Done in: " + timer.print() + "s\n")
 
 
 #%% Load test data
+timer.reset()
 print("Loading in test data...", end = " ")
 X_test, y_test = load_Xy_data(TEST_DATASET_PATH, remove_sunglasses = REMOVE_TEST_INVISIBLE_DATAPOINTS)
-print("Done\n")
+print("Done in: " + timer.print() + "s\n")
 
 #%% Testing
 print("Obtaining model predictions\n")
