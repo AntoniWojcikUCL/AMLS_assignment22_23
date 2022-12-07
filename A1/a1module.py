@@ -73,7 +73,7 @@ print("Done\n")
 
 #%% Cross-validation
 print("Selecting cross validation data...", end = " ")
-X_val, _, y_val, _ = train_test_split(X_train, y_train, test_size = 0.6, random_state = 42)
+X_val, _, y_val, _ = train_test_split(X_train, y_train, test_size = 0.8, random_state = 42)
 print("Done\n")
 
 cv_score_min = float("inf")
