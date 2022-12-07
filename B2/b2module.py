@@ -22,9 +22,10 @@ LABEL_IMG_NAMES = "file_name"
 LABEL_NAME = "eye_color"
 
 REMOVE_TRAIN_INVISIBLE_DATAPOINTS = True
-REMOVE_TEST_INVISIBLE_DATAPOINTS = True
+REMOVE_TEST_INVISIBLE_DATAPOINTS = False
 
-DEBUG_IMG_PREVIEW = True
+DEBUG_IMG_PREVIEW = -1 # Type -1 if none of the images should be shown
+DEBUG_LABEL_SUNGLASSES = False
 
 #%% Helper functions
 class Timer:
@@ -67,6 +68,10 @@ def load_data_source(dataset_path, file_names):
         # Find mean and std dev of pixel color in the mask
         mean, std = cv2.meanStdDev(img, mask = mask_circle)
 
+        if i == DEBUG_IMG_PREVIEW:
+            cv2.imshow("Preview of the mask", cv2.bitwise_and(img, img, mask = mask_circle))
+            cv2.waitKey(0)
+
         # Store the data in the array
         col_data[i, 0:3] = mean[:, 0]
         col_data[i, 3:6] = std[:, 0]
@@ -79,8 +84,12 @@ def load_Xy_data(dataset_path, remove_sunglasses: bool):
     label_file = pd.read_csv(dataset_path  + '/labels.csv', delimiter = "\t")
     file_names = label_file[LABEL_IMG_NAMES].values
 
-    X = load_data_source(dataset_path , file_names)
+    X = load_data_source(dataset_path, file_names)
     y = label_file[LABEL_NAME].values
+
+    if DEBUG_LABEL_SUNGLASSES:
+        eyes_not_visible = (X[:, 6] == 0)
+        y[eyes_not_visible] = 5
 
     if(remove_sunglasses):
         eyes_visible = (X[:, 6] > 0)
