@@ -142,7 +142,7 @@ def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp 
     #%% Print the results
 
     # Print the best value for K in KNN
-    print(clf_grid.best_params_) 
+    print("Optimal number of nearest neighbours for KNN: " + str(clf_grid.best_params_["n_neighbors"]) )
     # Print classification report 
     print(classification_report(y_test, grid_predictions)) 
 
