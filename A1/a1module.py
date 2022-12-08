@@ -11,6 +11,7 @@ import cv2
 
 # Sklearn libraries
 from sklearn.linear_model import SGDClassifier
+from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import KFold
@@ -69,15 +70,21 @@ def load_Xy_data(dataset_path):
 
 
 # A function to run the code to solve the task A1
-def run_task():
+def run_task(run_cross_val = True, clf_optimal_idx = 0):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
     clf = []
     clf.append(
-        SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', best_iter = 3000, shuffle = True, loss = 'perceptron', random_state = 42, n_jobs = -1, verbose = 0)
+        SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', random_state = 42, n_jobs = -1, verbose = 0)
     )
     clf.append(
-        SVC(gamma = "auto", random_state = 42, verbose = 0)
+        SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'log_loss', random_state = 42, n_jobs = -1, verbose = 0)
+    )
+    clf.append(
+        LogisticRegression(solver = 'saga', penalty = 'l1', max_iter = 3000, random_state = 42, n_jobs = -1, verbose = 0)
+    )
+    clf.append(
+        SVC(gamma = "auto", random_state = 42, verbose = 2)
     )
     print("Done\n")
 
@@ -89,31 +96,31 @@ def run_task():
 
 
     #%% Cross-validation
-    print("Selecting cross validation data...", end = " ")
-    X_val, _, y_val, _ = train_test_split(X_train, y_train, test_size = 0.8, random_state = 42)
-    print("Done\n")
-
-    cv_score_best = float("-inf")
-    cv_score_idx_best = 0
-
-    timer.reset()
-    for i in range(len(clf)):
-        print("Performing cross-validation of model " + str(i) + "...", end = " ")
-        cv_scores = cross_val_score(clf[i], X_val, y_val, scoring = ('f1'), cv = KFold(n_splits = 5), n_jobs = 5, verbose = 2)
+    if run_cross_val:
+        print("Selecting cross validation data...", end = " ")
+        X_val, _, y_val, _ = train_test_split(X_train, y_train, test_size = 0.6, random_state = 42)
         print("Done\n")
 
-        mean_score = np.mean(cv_scores)
+        cv_score_best = float("-inf")
 
-        if cv_score_best > mean_score:
-            cv_score_idx_best = i
-            cv_score_best = mean_score
+        timer.reset()
+        for i in range(len(clf)):
+            print("Performing cross-validation of model " + str(i) + "...", end = " ")
+            cv_scores = cross_val_score(clf[i], X_val, y_val, scoring = ('f1'), cv = KFold(n_splits = 5), n_jobs = 5, verbose = 2)
+            print("Done\n")
 
-        print("K-fold cross validation scores: ", cv_scores)
-        print("Mean score: ", mean_score, "\n")
+            mean_score = np.mean(cv_scores)
 
-    print("Cross-validation done in " + timer.print() + "s.\nBest model: " + str(cv_score_idx_best) + "\n")
+            if cv_score_best < mean_score:
+                clf_optimal_idx = i
+                cv_score_best = mean_score
 
-    clf_optimal = clf[cv_score_idx_best]
+            print("K-fold cross validation scores: ", cv_scores)
+            print("Mean score: ", mean_score, "\n")
+
+        print("Cross-validation done in " + timer.print() + "s.\nBest model: " + str(clf_optimal_idx) + "\n")
+
+    clf_optimal = clf[clf_optimal_idx]
 
 
     #%% Train the best model
