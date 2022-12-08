@@ -88,6 +88,7 @@ def run_task(run_cross_val = True, clf_optimal_idx = 0):
     )
     print("Done\n")
 
+
     #%% Load training data
     timer = Timer()
     print("Loading in training data...", end = " ")
