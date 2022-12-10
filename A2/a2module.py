@@ -37,14 +37,16 @@ class Timer:
         return str(time.time() - self.timer)
 
 # Load images, preprocess and flatten them, and combine into an array
-def load_data_source(dataset_path, img_names, use_grayscale = True):
+def load_data_source(dataset_path, img_names, use_grayscale = True, show_mean = False, y_labels = np.zeros(0)):
     img_data = []
 
+    # Loop over images in the data set
     for i in range(len(img_names)):
         img = cv2.imread(dataset_path + '/img/' + img_names[i])
 
         h, w = 0, 0
 
+        # Transform to grayscale if flag true
         if use_grayscale:
             img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -54,33 +56,48 @@ def load_data_source(dataset_path, img_names, use_grayscale = True):
             h, w, _ = img.shape
 
         # Crop the image
-        img = img[int(1 * h / 5):int(4 * h / 5), int(2 * w / 8):int(6 * w / 8)]
+        img = img[int(3 * h / 8):int(7 * h / 8), int(1 * w / 4):int(3 * w / 4)]
 
-        # Normalize the image so that values stay low
-        img = np.array(img, dtype = np.single).flatten() / 255.0
-        
-        img_data.append(img)
+        # Append images
+        img_data.append(np.array(img, dtype = np.single))
 
     img_data = np.array(img_data)
+
+    # Display mean and std of images with the same label
+    if show_mean:
+        for i in range(len(np.unique(y_labels))):
+            img_idx = (y_labels == i)
+            img_mean = np.mean(img_data[img_idx, :, :], axis = 0)
+            cv2.imshow("Mean of images with label " + str(i), np.array(img_mean, dtype = np.uint8))
+            img_std = np.std(img_data[img_idx, :, :], axis = 0)
+            cv2.imshow("STD of images with label " + str(i), np.array(img_std, dtype = np.uint8))
+        
+        cv2.waitKey(1)
+
+    # Reshape a stack of 2D images (3D array) to a 2D array of flatten image data per row
+    img_data = img_data.reshape(img_data.shape[0], img_data.shape[1] * img_data.shape[2])
+
+    # Normalize the image so that values stay low
+    img_data /= 255.0
 
     return img_data
 
 # Return X, y data of images and labels
-def load_Xy_data(dataset_path, use_grayscale):
+def load_Xy_data(dataset_path, use_grayscale, show_mean = False):
     # Read the csv file and extract label_file for each image
     label_file = pd.read_csv(dataset_path + '/labels.csv', delimiter = "\t")
     file_names = label_file[LABEL_IMG_NAMES].values
 
-    X = load_data_source(dataset_path, file_names, use_grayscale)
-
     y = label_file[LABEL_NAME].values
     y = LabelEncoder().fit_transform(y)
+
+    X = load_data_source(dataset_path, file_names, use_grayscale, show_mean, y)
 
     return X, y
 
 
 # A function to run the code to solve the task A1
-def run_task(use_grayscale = True):
+def run_task(use_grayscale = True, show_mean = False):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
 
@@ -101,7 +118,7 @@ def run_task(use_grayscale = True):
     #%% Load training data
     timer = Timer()
     print("Loading in training data...", end = " ")
-    X_train, y_train = load_Xy_data(DATASET_PATH, use_grayscale)
+    X_train, y_train = load_Xy_data(DATASET_PATH, use_grayscale, show_mean)
     print("Done in " + timer.print() + "s\n")
 
 
@@ -146,4 +163,4 @@ def run_task(use_grayscale = True):
 
 # Execute the code if the script is run on its own
 if __name__ == "__main__":
-    run_task()
+    run_task(True, True)
