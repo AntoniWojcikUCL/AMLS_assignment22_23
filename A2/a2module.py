@@ -13,6 +13,7 @@ import cv2
 from sklearn.linear_model import SGDClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
 
@@ -36,13 +37,21 @@ class Timer:
         return str(time.time() - self.timer)
 
 # Load images, preprocess and flatten them, and combine into an array
-def load_data_source(dataset_path, img_names):
+def load_data_source(dataset_path, img_names, use_grayscale = True):
     img_data = []
 
     for i in range(len(img_names)):
         img = cv2.imread(dataset_path + '/img/' + img_names[i])
 
-        h, w, _ = img.shape
+        h, w = 0, 0
+
+        if use_grayscale:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+
+            h, w = img.shape
+
+        else:
+            h, w, _ = img.shape
 
         # Crop the image
         img = img[int(1 * h / 5):int(4 * h / 5), int(2 * w / 8):int(6 * w / 8)]
@@ -57,12 +66,12 @@ def load_data_source(dataset_path, img_names):
     return img_data
 
 # Return X, y data of images and labels
-def load_Xy_data(dataset_path):
+def load_Xy_data(dataset_path, use_grayscale):
     # Read the csv file and extract label_file for each image
     label_file = pd.read_csv(dataset_path + '/labels.csv', delimiter = "\t")
     file_names = label_file[LABEL_IMG_NAMES].values
 
-    X = load_data_source(dataset_path, file_names)
+    X = load_data_source(dataset_path, file_names, use_grayscale)
 
     y = label_file[LABEL_NAME].values
     y = LabelEncoder().fit_transform(y)
@@ -71,7 +80,7 @@ def load_Xy_data(dataset_path):
 
 
 # A function to run the code to solve the task A1
-def run_task():
+def run_task(use_grayscale = True):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
 
@@ -79,22 +88,20 @@ def run_task():
         'learning_rate': ['optimal'],
         'random_state': [42],
         'alpha': [1e-5, 1e-4],
-        'loss': ['log_loss', 'perceptron'],
+        'loss': ['hinge', 'log_loss', 'perceptron'],
         'penalty': ['l1', 'l2'],
         'max_iter': [3000]
     }
 
     clf_grid = GridSearchCV(SGDClassifier(), parameters, scoring = ('f1'), cv = 5, refit = True, n_jobs = -1, verbose = 2)
 
-    #clf = SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, pentalty = 'l1', 
-    # max_iter = 3000, shuffle = True, loss = 'perceptron', verbose = True, random_state = 42)
     print("Done\n")
 
 
     #%% Load training data
     timer = Timer()
     print("Loading in training data...", end = " ")
-    X_train, y_train = load_Xy_data(DATASET_PATH)
+    X_train, y_train = load_Xy_data(DATASET_PATH, use_grayscale)
     print("Done in " + timer.print() + "s\n")
 
 
@@ -108,22 +115,23 @@ def run_task():
     #%% Load test data
     timer.reset()
     print("Loading in test data...", end = " ")
-    X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
+    X_test, y_test = load_Xy_data(TEST_DATASET_PATH, use_grayscale)
     print("Done in " + timer.print() + "s\n")
 
 
     #%% Testing
-    print("Obtaining model predictions\n")
-    predictions = clf_grid.predict(X_test) 
+    print("Obtaining model y_pred\n")
+    y_pred = clf_grid.predict(X_test) 
 
 
     #%% Print the results
     print("Results:\n")
     print("Labels: ", y_test)
-    print("Predicted: ", predictions)
+    print("Predicted: ", y_pred)
+    print("Confusion matrix: ", confusion_matrix(y_test, y_pred))
     
     # Print the classification report 
-    print(classification_report(y_test, predictions)) 
+    print(classification_report(y_test, y_pred)) 
 
     # Print cross validation scores for the whole grid
     print("Mean cross-validation test scores: ", clf_grid.cv_results_["mean_test_score"])

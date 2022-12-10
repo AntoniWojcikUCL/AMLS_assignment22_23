@@ -12,11 +12,11 @@ import cv2
 # Sklearn libraries
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
 
@@ -40,11 +40,14 @@ class Timer:
         return str(time.time() - self.timer)
 
 # Load images, preprocess and flatten them, and combine into an array
-def load_data_source(dataset_path, img_names):
+def load_data_source(dataset_path, img_names, use_grayscale = True):
     img_data = []
 
     for i in range(len(img_names)):
         img = cv2.imread(dataset_path + '/img/' + img_names[i])
+
+        if use_grayscale:
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
         # Normalize the image so that values stay low
         img = np.array(img, dtype = np.single).flatten() / 255.0
@@ -56,12 +59,12 @@ def load_data_source(dataset_path, img_names):
     return img_data
 
 # Return X, y data of images and labels
-def load_Xy_data(dataset_path):
+def load_Xy_data(dataset_path, use_grayscale):
     # Read the csv file and extract label_file for each image
     label_file = pd.read_csv(dataset_path + '/labels.csv', delimiter = "\t")
     file_names = label_file[LABEL_IMG_NAMES].values
 
-    X = load_data_source(dataset_path, file_names)
+    X = load_data_source(dataset_path, file_names, use_grayscale)
 
     y = label_file[LABEL_NAME].values
     y = LabelEncoder().fit_transform(y)
@@ -70,21 +73,15 @@ def load_Xy_data(dataset_path):
 
 
 # A function to run the code to solve the task A1
-def run_task(run_cross_val = True, clf_optimal_idx = 0):
+def run_task(run_cross_val = True, clf_optimal_idx = 0, use_grayscale = True):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
     clf = []
     clf.append(
-        SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', random_state = 42, n_jobs = -1, verbose = 0)
-    )
-    clf.append(
-        SGDClassifier(learning_rate = 'optimal', alpha = 1e-5, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'log_loss', random_state = 42, n_jobs = -1, verbose = 0)
+        SGDClassifier(learning_rate = 'optimal', alpha = 1e-4, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'hinge', random_state = 42, n_jobs = -1, verbose = 0)
     )
     clf.append(
         LogisticRegression(solver = 'saga', penalty = 'l1', max_iter = 3000, random_state = 42, n_jobs = -1, verbose = 0)
-    )
-    clf.append(
-        SVC(gamma = "auto", random_state = 42, verbose = 2)
     )
     print("Done\n")
 
@@ -92,7 +89,7 @@ def run_task(run_cross_val = True, clf_optimal_idx = 0):
     #%% Load training data
     timer = Timer()
     print("Loading in training data...", end = " ")
-    X_train, y_train = load_Xy_data(DATASET_PATH)
+    X_train, y_train = load_Xy_data(DATASET_PATH, use_grayscale)
     print("Done in " + timer.print() + "s\n")
 
 
@@ -134,25 +131,26 @@ def run_task(run_cross_val = True, clf_optimal_idx = 0):
     #%% Load test data
     timer.reset()
     print("Loading in test data...", end = " ")
-    X_test, y_test = load_Xy_data(TEST_DATASET_PATH)
+    X_test, y_test = load_Xy_data(TEST_DATASET_PATH, use_grayscale)
     print("Done in " + timer.print() + "s\n")
 
 
     #%% Testing
     print("Obtaining model predictions\n")
-    predictions = clf_optimal.predict(X_test) 
+    y_pred = clf_optimal.predict(X_test) 
 
 
     #%% Print the results
     print("Results:\n")
     print("Labels: ", y_test)
-    print("Predicted: ", predictions)
-    print("Score:", clf_optimal.score(X_test, y_test))
+    print("Predicted: ", y_pred)
+    print("Score: ", clf_optimal.score(X_test, y_test))
+    print("Confusion matrix: ", confusion_matrix(y_test, y_pred))
     
     # Print the classification report 
-    print(classification_report(y_test, predictions)) 
+    print(classification_report(y_test, y_pred)) 
 
 
 # Execute the code if the script is run on its own
 if __name__ == "__main__":
-    run_task()
+    run_task(False, 1, True)

@@ -12,6 +12,7 @@ import cv2
 # Sklearn libraries
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
 
@@ -137,14 +138,16 @@ def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp 
 
     #%% Testing
     print("Obtaining model predictions\n")
-    grid_predictions = clf_grid.predict(X_test) 
+    y_pred = clf_grid.predict(X_test)
     
     #%% Print the results
 
     # Print the best value for K in KNN
     print("Optimal number of nearest neighbours for KNN: " + str(clf_grid.best_params_["n_neighbors"]) )
+    # Print confusion matrix
+    print("Confusion matrix: ", confusion_matrix(y_test, y_pred))
     # Print classification report 
-    print(classification_report(y_test, grid_predictions)) 
+    print(classification_report(y_test, y_pred)) 
 
 
 # Execute the code if the script is run on its own

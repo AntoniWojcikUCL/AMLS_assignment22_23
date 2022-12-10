@@ -11,6 +11,7 @@ import cv2
 
 # Sklearn libraries
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
 
@@ -111,18 +112,19 @@ def run_task(enable_edge_detection = True, enable_resize = True, resize_scaling 
 
 
     #%% Testing
-    print("Obtaining model predictions\n")
-    predictions = clf.predict(X_test) 
+    print("Obtaining model y_pred\n")
+    y_pred = clf.predict(X_test) 
 
 
     #%% Print the results
     print("Results:\n")
     print("Labels: ", y_test)
-    print("Predicted: ", predictions)
-    print("Score:", clf.score(X_test, y_test))
+    print("Predicted: ", y_pred)
+    print("Score: ", clf.score(X_test, y_test))
+    print("Confusion matrix: ", confusion_matrix(y_test, y_pred))
     
     # Print the classification report 
-    print(classification_report(y_test, predictions)) 
+    print(classification_report(y_test, y_pred)) 
 
 
 # Execute the code if the script is run on its own
