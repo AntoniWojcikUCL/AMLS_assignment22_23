@@ -129,14 +129,22 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
 
-    parameters = {
+    parameters = [{
         'learning_rate': ['optimal'],
         'random_state': [42],
         'alpha': [1e-5, 1e-4],
         'loss': ['log_loss', 'perceptron'],
         'penalty': ['l1', 'l2'],
         'max_iter': [3000]
-    }
+    }, {
+        'learning_rate': ['adaptive'],
+        'random_state': [42],
+        'eta0': [1e5, 1e4],
+        'loss': ['log_loss', 'perceptron'],
+        'penalty': ['l1', 'l2'],
+        'max_iter': [3000],
+        'average': [True, False]
+    }]
 
     clf_grid = GridSearchCV(SGDClassifier(), parameters, scoring = ('f1'), cv = 5, refit = True, n_jobs = -1, verbose = 2)
 
@@ -157,11 +165,11 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     print("Done in " + timer.print() + "s\n")
 
 
-    #%% Use cross-validation to generage a convergence plot for the model
+    #%% Use cross-validation to generage a convergence plot for the model with best hyperparameters
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")
-        plot_convergence(clf_grid, X_train, y_train)
+        plot_convergence(clf_grid.best_estimator_, X_train, y_train)
         print("Done in: " + timer.print())
 
 

@@ -158,11 +158,11 @@ def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp 
     print("Done in: " + timer.print() + "s\n")
 
 
-    #%% Use cross-validation to generage a convergence plot for the model
+    #%% Use cross-validation to generage a convergence plot for the best model
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")
-        plot_convergence(clf_grid, X_train, y_train)
+        plot_convergence(clf_grid.best_estimator_, X_train, y_train)
         print("Done in: " + timer.print())
 
 
