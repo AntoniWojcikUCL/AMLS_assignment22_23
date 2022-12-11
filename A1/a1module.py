@@ -75,9 +75,11 @@ def load_data_source(dataset_path, img_names, use_grayscale = True, show_mean = 
             img_mean = np.mean(img_data[img_idx, :, :], axis = 0)
             cv2.imshow("Mean of images with label " + str(i), np.array(img_mean, dtype = np.uint8))
             img_std = np.std(img_data[img_idx, :, :], axis = 0)
-            cv2.imshow("STD of images with label " + str(i), np.array(img_std, dtype = np.uint8))
+            img_std = cv2.normalize(img_std, img_std, 0, 255, cv2.NORM_MINMAX)
+            img_std = np.array(img_std, dtype = np.uint8)
+            cv2.imshow("STD of images with label " + str(i), img_std)
         
-        cv2.waitKey(1)
+        cv2.waitKey(0)
 
     # Reshape a stack of 2D images (3D array) to a 2D array of flatten image data per row
     img_data = img_data.reshape(img_data.shape[0], img_data.shape[1] * img_data.shape[2])

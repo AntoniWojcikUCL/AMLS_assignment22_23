@@ -73,9 +73,11 @@ def load_data_source(dataset_path, img_names, use_grayscale = True, show_mean = 
             img_mean = np.mean(img_data[img_idx, :, :], axis = 0)
             cv2.imshow("Mean of images with label " + str(i), np.array(img_mean, dtype = np.uint8))
             img_std = np.std(img_data[img_idx, :, :], axis = 0)
-            cv2.imshow("STD of images with label " + str(i), np.array(img_std, dtype = np.uint8))
+            img_std = cv2.normalize(img_std, img_std, 0, 255, cv2.NORM_MINMAX)
+            img_std = np.array(img_std, dtype = np.uint8)
+            cv2.imshow("STD of images with label " + str(i), img_std)
         
-        cv2.waitKey(1)
+        cv2.waitKey(0)
 
     # Reshape a stack of 2D images (3D array) to a 2D array of flatten image data per row
     img_data = img_data.reshape(img_data.shape[0], img_data.shape[1] * img_data.shape[2])
@@ -145,16 +147,6 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
 
     print("Done\n")
 
-    # Print cross validation scores for the whole grid
-    print("Mean cross-validation test scores: ", clf_grid.cv_results_["mean_test_score"])
-
-    # Print the best params in the grid
-    print("Best score: %0.3f" % (clf_grid.best_score_))
-    print("Best parameters set:")
-    best_parameters = clf_grid.best_params_
-    for param_name in sorted(parameters.keys()):
-        print("\t%s: %r" % (param_name, best_parameters[param_name]))
-
 
     #%% Load training data
     timer = Timer()
@@ -168,6 +160,16 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     print("Performing cross-validation of all the models and training the best model on all the data...", end = " ")
     clf_grid.fit(X_train, y_train)
     print("Done in " + timer.print() + "s\n")
+
+    # Print cross validation scores for the whole grid
+    print("Mean cross-validation test scores: ", clf_grid.cv_results_["mean_test_score"])
+
+    # Print the best params in the grid
+    print("Best score: %0.3f" % (clf_grid.best_score_))
+    print("Best parameters set:")
+    best_parameters = clf_grid.best_params_
+    for param_name in sorted(parameters.keys()):
+        print("\t%s: %r" % (param_name, best_parameters[param_name]))
 
 
     #%% Use cross-validation to generage a convergence plot for the model with best hyperparameters
