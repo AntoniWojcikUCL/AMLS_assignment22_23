@@ -139,19 +139,21 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
         'loss': ['log_loss', 'perceptron'],
         'penalty': ['l1', 'l2'],
         'max_iter': [3000]
-    }, {
-        'learning_rate': ['adaptive'],
-        'random_state': [42],
-        'eta0': [1e5, 1e4],
-        'loss': ['log_loss', 'perceptron'],
-        'penalty': ['l1', 'l2'],
-        'max_iter': [3000],
-        'average': [True, False]
     }]
 
     clf_grid = GridSearchCV(SGDClassifier(), parameters, scoring = ('f1'), cv = 5, refit = True, n_jobs = -1, verbose = 2)
 
     print("Done\n")
+
+    # Print cross validation scores for the whole grid
+    print("Mean cross-validation test scores: ", clf_grid.cv_results_["mean_test_score"])
+
+    # Print the best params in the grid
+    print("Best score: %0.3f" % (clf_grid.best_score_))
+    print("Best parameters set:")
+    best_parameters = clf_grid.best_params_
+    for param_name in sorted(parameters.keys()):
+        print("\t%s: %r" % (param_name, best_parameters[param_name]))
 
 
     #%% Load training data
@@ -196,16 +198,6 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     
     # Print the classification report 
     print(classification_report(y_test, y_pred)) 
-
-    # Print cross validation scores for the whole grid
-    print("Mean cross-validation test scores: ", clf_grid.cv_results_["mean_test_score"])
-
-    # Print the best params in the grid
-    print("Best score: %0.3f" % (clf_grid.best_score_))
-    print("Best parameters set:")
-    best_parameters = clf_grid.best_params_
-    for param_name in sorted(parameters.keys()):
-        print("\t%s: %r" % (param_name, best_parameters[param_name]))
 
 
 # Execute the code if the script is run on its own
