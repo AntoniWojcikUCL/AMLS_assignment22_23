@@ -196,6 +196,7 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     print("Results:\n")
     print("Labels: ", y_test)
     print("Predicted: ", y_pred)
+    print("Score: ", clf_optimal.score(X_test, y_test))
     print("Confusion matrix: ", confusion_matrix(y_test, y_pred))
     
     # Print the classification report 
