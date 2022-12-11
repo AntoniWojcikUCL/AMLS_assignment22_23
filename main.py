@@ -28,7 +28,7 @@ def main():
 
     # Run solutions to task A2
     print("A2: RUN1", flush = True)
-    timer = Timer()
+    timer.reset()
     A2.a2module.run_task(gen_convergence_plot = True, plot_out_path = "./A2/convergence.png")
     print("TASK FINISHED IN " + timer.print() + "s\n", flush = True)
 
