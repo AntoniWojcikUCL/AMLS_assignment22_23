@@ -172,7 +172,7 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")
-        plot_convergence(clf_grid.best_estimator_, X_train, y_train)
+        plot_convergence(clf_grid.best_estimator_, X_train, y_train, plot_out_path)
         print("Done in: " + timer.print())
 
 
