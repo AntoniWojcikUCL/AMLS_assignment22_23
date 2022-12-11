@@ -48,7 +48,7 @@ def main():
     # Run solutions to task B2
     print("B2: RUN1: KEEP SUNGLASSES DATA POINTS UNALTERED", flush = True)
     timer.reset()
-    B2.b2module.run_task(add_sunglasses_lab = False, rm_train_sun_dp = False, rm_test_sun_dp = False)
+    B2.b2module.run_task(add_sunglasses_lab = False, rm_train_sun_dp = False, rm_test_sun_dp = False, gen_convergence_plot = True, plot_out_path = "./B2/convergenceUnaltered.png")
     print("TASK FINISHED IN " + timer.print() + "s\n", flush = True)
 
     print("B2: RUN2: REMOVE SUNGLASSES DATA POINTS FROM THE TRAINING DATA", flush = True)
