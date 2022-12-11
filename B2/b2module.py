@@ -8,10 +8,13 @@ import pandas as pd
 
 # Image handling libraries
 import cv2
+import matplotlib.pyplot as plt
 
 # Sklearn libraries
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import LearningCurveDisplay
+from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
@@ -99,9 +102,34 @@ def load_Xy_data(dataset_path, remove_sunglasses_datapoints = False, add_sunglas
 
     return X, y
 
+# Function to generate a convergence plot for the model
+def plot_convergence(clf, X, y):
+    font = {'size' : 12}
+    plt.rc('font', **font)
+    
+    fig, ax = plt.subplots(1, 1, figsize=(5, 4))
+    fig.subplots_adjust(bottom=0.2, left=0.2)
+
+    common_params = {
+        "X": X,
+        "y": y,
+        "train_sizes": np.linspace(0.1, 1.0, 5),
+        "cv": KFold(n_splits=20),
+        "score_type": "both",
+        "n_jobs": -1,
+        "line_kw": {"marker": "o"},
+        "std_display_style": "fill_between",
+        "score_name": "Accuracy",
+    }
+
+    LearningCurveDisplay.from_estimator(clf, **common_params, ax=ax)
+    handles, label = ax.get_legend_handles_labels()
+    ax.legend(handles[:2], ["Training Score", "Test Score"])
+    ax.set_title(f"Learning Curve for {clf.__class__.__name__}")
+
 
 # A function to run the code to solve the task A1
-def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp = True):
+def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp = True, gen_convergence_plot = False):
     # If we want to add new labels for sunglasses to the data, then we shouldn't remove these datapoints from training and testing
     if add_sunglasses_lab:
         rm_train_sun_dp = False
@@ -123,11 +151,19 @@ def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp 
     print("Done in: " + timer.print() + "s\n")
 
 
-    #%% Train the model
+    #%% Cross-validation to tune hyperparams and fit the best model
     timer.reset()
     print("Training the best model...")
     clf_grid.fit(X_train, y_train)
     print("Done in: " + timer.print() + "s\n")
+
+
+    #%% Use cross-validation to generage a convergence plot for the model
+    if gen_convergence_plot:
+        timer.reset()
+        print("Generating a convergence plot...", end = " ")
+        plot_convergence(clf_grid, X_train, y_train)
+        print("Done in: " + timer.print())
 
 
     #%% Load test data

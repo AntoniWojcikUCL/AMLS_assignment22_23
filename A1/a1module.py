@@ -8,11 +8,13 @@ import pandas as pd
 
 # Image handling libraries
 import cv2
+import matplotlib.pyplot as plt
 
 # Sklearn libraries
 from sklearn.linear_model import SGDClassifier
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import LabelEncoder
+from sklearn.model_selection import LearningCurveDisplay
 from sklearn.model_selection import KFold
 from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_val_score
@@ -98,14 +100,39 @@ def load_Xy_data(dataset_path, use_grayscale, show_mean = False):
 
     return X, y
 
+# Function to generate a convergence plot for the model
+def plot_convergence(clf, X, y):
+    font = {'size' : 12}
+    plt.rc('font', **font)
+    
+    fig, ax = plt.subplots(1, 1, figsize=(5, 4))
+    fig.subplots_adjust(bottom=0.2, left=0.2)
+
+    common_params = {
+        "X": X,
+        "y": y,
+        "train_sizes": np.linspace(0.1, 1.0, 5),
+        "cv": KFold(n_splits=20),
+        "score_type": "both",
+        "n_jobs": -1,
+        "line_kw": {"marker": "o"},
+        "std_display_style": "fill_between",
+        "score_name": "Accuracy",
+    }
+
+    LearningCurveDisplay.from_estimator(clf, **common_params, ax=ax)
+    handles, label = ax.get_legend_handles_labels()
+    ax.legend(handles[:2], ["Training Score", "Test Score"])
+    ax.set_title(f"Learning Curve for {clf.__class__.__name__}")
+
 
 # A function to run the code to solve the task A1
-def run_task(run_cross_val = True, clf_optimal_idx = 0, use_grayscale = True, show_mean = False):
+def run_task(run_cross_val = True, clf_optimal_idx = 0, use_grayscale = True, show_mean = False, gen_convergence_plot = False):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
     clf = []
     clf.append(
-        SGDClassifier(learning_rate = 'optimal', alpha = 1e-4, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'hinge', random_state = 42, n_jobs = -1, verbose = 0)
+        SGDClassifier(learning_rate = 'optimal', alpha = 1e-4, penalty = 'l1', max_iter = 3000, shuffle = True, loss = 'perceptron', random_state = 42, n_jobs = -1, verbose = 0)
     )
     clf.append(
         LogisticRegression(solver = 'saga', penalty = 'l1', max_iter = 3000, random_state = 42, n_jobs = -1, verbose = 2)
@@ -153,6 +180,14 @@ def run_task(run_cross_val = True, clf_optimal_idx = 0, use_grayscale = True, sh
     print("Training the best model...")
     clf_optimal.fit(X_train, y_train)
     print("Done in " + timer.print() + "s\n")
+
+
+    #%% Use cross-validation to generage a convergence plot for the model
+    if gen_convergence_plot:
+        timer.reset()
+        print("Generating a convergence plot...", end = " ")
+        plot_convergence(clf, X_train, y_train)
+        print("Done in: " + timer.print())
 
 
     #%% Load test data

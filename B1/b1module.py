@@ -8,9 +8,12 @@ import pandas as pd
 
 # Image handling libraries
 import cv2
+import matplotlib.pyplot as plt
 
 # Sklearn libraries
 from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import LearningCurveDisplay
+from sklearn.model_selection import KFold
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import classification_report
 
@@ -101,9 +104,34 @@ def load_Xy_data(dataset_path, enable_edge_detection = False, enable_resize = Fa
 
     return X, y
 
+# Function to generate a convergence plot for the model
+def plot_convergence(clf, X, y):
+    font = {'size' : 12}
+    plt.rc('font', **font)
+    
+    fig, ax = plt.subplots(1, 1, figsize=(5, 4))
+    fig.subplots_adjust(bottom=0.2, left=0.2)
+
+    common_params = {
+        "X": X,
+        "y": y,
+        "train_sizes": np.linspace(0.1, 1.0, 5),
+        "cv": KFold(n_splits=20),
+        "score_type": "both",
+        "n_jobs": -1,
+        "line_kw": {"marker": "o"},
+        "std_display_style": "fill_between",
+        "score_name": "Accuracy",
+    }
+
+    LearningCurveDisplay.from_estimator(clf, **common_params, ax=ax)
+    handles, label = ax.get_legend_handles_labels()
+    ax.legend(handles[:2], ["Training Score", "Test Score"])
+    ax.set_title(f"Learning Curve for {clf.__class__.__name__}")
+
 
 # A function to run the code to solve the task A1
-def run_task(enable_edge_detection = True, enable_resize = True, resize_scaling = 0.5, show_mean = False):
+def run_task(enable_edge_detection = True, enable_resize = True, resize_scaling = 0.5, show_mean = False, gen_convergence_plot = False):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
     clf = RandomForestClassifier(random_state = 42, criterion = "entropy", min_samples_split = 20, n_estimators = 100, n_jobs = -1, verbose = True)
@@ -122,6 +150,14 @@ def run_task(enable_edge_detection = True, enable_resize = True, resize_scaling 
     print("Training the model...")
     clf.fit(X_train, y_train)
     print("Done in " + timer.print() + "s\n")
+
+
+    #%% Use cross-validation to generage a convergence plot for the model
+    if gen_convergence_plot:
+        timer.reset()
+        print("Generating a convergence plot...", end = " ")
+        plot_convergence(clf, X_train, y_train)
+        print("Done in: " + timer.print())
 
 
     #%% Load test data
