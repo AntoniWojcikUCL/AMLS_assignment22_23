@@ -46,7 +46,7 @@ def load_data_source(dataset_path, file_names):
     col_data = np.zeros((len(file_names), 7))
 
     # Define the mask array
-    mask_circle = []
+    mask = []
 
     # Find average color and its mean std dev in the blobs for each image
     for i in range(len(file_names)):
@@ -54,16 +54,16 @@ def load_data_source(dataset_path, file_names):
 
         # Generate the hard-coded mask based on the first image
         if i == 0:
-            mask_circle = np.zeros(img.shape[:2], np.uint8)
+            mask = np.zeros(img.shape[:2], np.uint8)
 
             radius = 18
             pt = (294, 260)
-            mask_circle = cv2.circle(mask_circle, center = pt, radius = radius, color = (255, 255, 255), thickness = -1)
+            mask = cv2.circle(mask, center = pt, radius = radius, color = (255, 255, 255), thickness = -1)
             pt = (205, 260)
-            mask_circle = cv2.circle(mask_circle, center = pt, radius = radius, color = (255, 255, 255), thickness = -1)
+            mask = cv2.circle(mask, center = pt, radius = radius, color = (255, 255, 255), thickness = -1)
 
         # Find mean and std dev of pixel color in the mask
-        mean, std = cv2.meanStdDev(img, mask = mask_circle)
+        mean, std = cv2.meanStdDev(img, mask = mask)
 
         if i == DEF_DEBUG_IMG_PREVIEW:
             cv2.imshow("Preview of the mask", cv2.bitwise_and(img, img, mask = mask_circle))
