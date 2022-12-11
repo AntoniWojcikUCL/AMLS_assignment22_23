@@ -134,14 +134,14 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
 
-    parameters = [{
+    parameters = {
         'learning_rate': ['optimal'],
         'random_state': [42],
         'alpha': [1e-5, 1e-4],
         'loss': ['log_loss', 'perceptron'],
         'penalty': ['l1', 'l2'],
         'max_iter': [3000]
-    }]
+    }
 
     clf_grid = GridSearchCV(SGDClassifier(), parameters, scoring = ('f1'), cv = 5, refit = True, n_jobs = -1, verbose = 2)
 
