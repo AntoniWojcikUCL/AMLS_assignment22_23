@@ -1,5 +1,4 @@
 import time
-import sys
 
 import A1.a1module
 import A2.a2module
@@ -23,26 +22,26 @@ def main():
     # Run solutions to task A1
     print("A1: RUN1", flush = True)
     timer = Timer()
-    A1.a1module.run_task()
+    A1.a1module.run_task(gen_convergence_plot = True, plot_out_path = "./A1/convergence.png")
     print("TASK FINISHED IN " + timer.print() + "s\n", flush = True)
     
 
     # Run solutions to task A2
     print("A2: RUN1", flush = True)
     timer = Timer()
-    A2.a2module.run_task()
+    A2.a2module.run_task(gen_convergence_plot = True, plot_out_path = "./A2/convergence.png")
     print("TASK FINISHED IN " + timer.print() + "s\n", flush = True)
 
 
     # Run solutions to task B1
     print("B1: RUN1: USE 50% RESCALING AND EDGE DETECTION", flush = True)
     timer.reset()
-    B1.b1module.run_task(enable_edge_detection = True, enable_resize = True, resize_scaling = 0.5)
+    B1.b1module.run_task(enable_edge_detection = True, enable_resize = True, resize_scaling = 0.5, gen_convergence_plot = True, plot_out_path = "./B1/convergenceEdge.png")
     print("TASK FINISHED IN " + timer.print() + "s\n", flush = True)
 
     print("B1: RUN2: USE 50% RESCALING W/O EDGE DETECTION", flush = True)
     timer.reset()
-    B1.b1module.run_task(enable_edge_detection = False, enable_resize = True, resize_scaling = 0.5)
+    B1.b1module.run_task(enable_edge_detection = False, enable_resize = True, resize_scaling = 0.5, gen_convergence_plot = True, plot_out_path = "./B1/convergenceGray.png")
     print("TASK FINISHED IN " + timer.print() + "s\n", flush = True)
 
 
@@ -54,7 +53,7 @@ def main():
 
     print("B2: RUN2: REMOVE SUNGLASSES DATA POINTS FROM THE TRAINING DATA", flush = True)
     timer.reset()
-    B2.b2module.run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp = False)
+    B2.b2module.run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp = False, gen_convergence_plot = True, plot_out_path = "./B2/convergence.png")
     print("TASK FINISHED IN " + timer.print() + "s\n", flush = True)
 
     print("B2: RUN3: REMOVE SUNGLASSES DATA POINTS FROM BOTH TRAINING AND TEST DATA", flush = True)
@@ -64,7 +63,7 @@ def main():
 
     print("B2: RUN4: ADD SUNGLASSES LABELS", flush = True)
     timer.reset()
-    B2.b2module.run_task(add_sunglasses_lab = True, rm_train_sun_dp = False, rm_test_sun_dp = False)
+    B2.b2module.run_task(add_sunglasses_lab = True, rm_train_sun_dp = False, rm_test_sun_dp = False, gen_convergence_plot = True, plot_out_path = "./B2/convergenceExtraLab.png")
     print("TASK FINISHED IN " + timer.print() + "s\n", flush = True)
 
  

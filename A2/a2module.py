@@ -99,7 +99,7 @@ def load_Xy_data(dataset_path, use_grayscale, show_mean = False):
     return X, y
 
 # Function to generate a convergence plot for the model
-def plot_convergence(clf, X, y):
+def plot_convergence(clf, X, y, plot_out_path = ""):
     font = {'size' : 12}
     plt.rc('font', **font)
     
@@ -122,10 +122,13 @@ def plot_convergence(clf, X, y):
     handles, label = ax.get_legend_handles_labels()
     ax.legend(handles[:2], ["Training Score", "Test Score"])
     ax.set_title(f"Learning Curve for {clf.__class__.__name__}")
+    
+    if plot_out_path:
+        plt.savefig(plot_out_path)
 
 
 # A function to run the code to solve the task A1
-def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = False):
+def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = False, plot_out_path = ""):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
 

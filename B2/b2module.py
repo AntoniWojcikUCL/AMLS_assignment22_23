@@ -103,7 +103,7 @@ def load_Xy_data(dataset_path, remove_sunglasses_datapoints = False, add_sunglas
     return X, y
 
 # Function to generate a convergence plot for the model
-def plot_convergence(clf, X, y):
+def plot_convergence(clf, X, y, plot_out_path = ""):
     font = {'size' : 12}
     plt.rc('font', **font)
     
@@ -127,9 +127,12 @@ def plot_convergence(clf, X, y):
     ax.legend(handles[:2], ["Training Score", "Test Score"])
     ax.set_title(f"Learning Curve for {clf.__class__.__name__}")
 
+    if plot_out_path:
+        plt.savefig(plot_out_path)
+
 
 # A function to run the code to solve the task A1
-def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp = True, gen_convergence_plot = False):
+def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp = True, gen_convergence_plot = False, plot_out_path = ""):
     # If we want to add new labels for sunglasses to the data, then we shouldn't remove these datapoints from training and testing
     if add_sunglasses_lab:
         rm_train_sun_dp = False
@@ -158,11 +161,11 @@ def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp 
     print("Done in: " + timer.print() + "s\n")
 
 
-    #%% Use cross-validation to generage a convergence plot for the best model
+    #%% Use cross-validation to generage a convergence plot for the model with best hyperparameters
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")
-        plot_convergence(clf_grid.best_estimator_, X_train, y_train)
+        plot_convergence(clf_grid.best_estimator_, X_train, y_train, plot_out_path)
         print("Done in: " + timer.print())
 
 
