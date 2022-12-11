@@ -66,7 +66,7 @@ def load_data_source(dataset_path, file_names):
         mean, std = cv2.meanStdDev(img, mask = mask)
 
         if i == DEF_DEBUG_IMG_PREVIEW:
-            cv2.imshow("Preview of the mask", cv2.bitwise_and(img, img, mask = mask_circle))
+            cv2.imshow("Preview of the mask", cv2.bitwise_and(img, img, mask = mask))
             cv2.waitKey(0)
 
         # Store the data in the array
