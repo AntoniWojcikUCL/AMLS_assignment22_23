@@ -184,7 +184,7 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
 
 
     #%% Testing
-    print("Obtaining model y_pred\n")
+    print("Obtaining model predictions\n")
     y_pred = clf_grid.predict(X_test) 
 
 

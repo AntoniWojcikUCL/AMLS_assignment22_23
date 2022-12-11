@@ -171,7 +171,7 @@ def run_task(enable_edge_detection = True, enable_resize = True, resize_scaling 
 
 
     #%% Testing
-    print("Obtaining model y_pred\n")
+    print("Obtaining model predictions\n")
     y_pred = clf.predict(X_test) 
 
 
