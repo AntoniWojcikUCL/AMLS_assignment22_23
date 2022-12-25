@@ -161,7 +161,7 @@ def run_task(add_sunglasses_lab = False, rm_train_sun_dp = True, rm_test_sun_dp 
     print("Done in: " + timer.print() + "s\n")
 
 
-    #%% Use cross-validation to generage a convergence plot for the model with best hyperparameters
+    #%% Use cross-validation to generate a convergence plot for the model with best hyperparameters
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")

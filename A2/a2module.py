@@ -172,7 +172,7 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
         print("\t%s: %r" % (param_name, best_parameters[param_name]))
 
 
-    #%% Use cross-validation to generage a convergence plot for the model with best hyperparameters
+    #%% Use cross-validation to generate a convergence plot for the model with best hyperparameters
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")

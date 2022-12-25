@@ -187,7 +187,7 @@ def run_task(run_cross_val = True, clf_optimal_idx = 0, use_grayscale = True, sh
     print("Done in " + timer.print() + "s\n")
 
 
-    #%% Use cross-validation to generage a convergence plot for the best model
+    #%% Use cross-validation to generate a convergence plot for the best model
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")

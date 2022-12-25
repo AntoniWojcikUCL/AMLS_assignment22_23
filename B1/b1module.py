@@ -157,7 +157,7 @@ def run_task(enable_edge_detection = True, enable_resize = True, resize_scaling 
     print("Done in " + timer.print() + "s\n")
 
 
-    #%% Use cross-validation to generage a convergence plot for the model
+    #%% Use cross-validation to generate a convergence plot for the model
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")
