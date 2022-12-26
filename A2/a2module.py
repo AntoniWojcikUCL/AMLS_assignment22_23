@@ -16,7 +16,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import LearningCurveDisplay
 from sklearn.model_selection import KFold
-from sklearn.metrics import confusion_matrix
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.metrics import classification_report
 
 
@@ -101,7 +101,7 @@ def load_Xy_data(dataset_path, use_grayscale, show_mean = False):
     return X, y
 
 # Function to generate a convergence plot for the model
-def plot_convergence(clf, X, y, plot_out_path = ""):
+def plot_convergence(clf, X, y, plot_conv_path = ""):
     font = {'size' : 12}
     plt.rc('font', **font)
     
@@ -125,12 +125,12 @@ def plot_convergence(clf, X, y, plot_out_path = ""):
     ax.legend(handles[:2], ["Training Score", "Test Score"])
     ax.set_title(f"Learning Curve for {clf.__class__.__name__}")
     
-    if plot_out_path:
-        plt.savefig(plot_out_path)
+    if plot_conv_path:
+        plt.savefig(plot_conv_path)
 
 
 # A function to run the code to solve the task A1
-def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = False, plot_out_path = ""):
+def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = False, plot_conv_path = "", plot_conf_path = ""):
     #%% Select the classifiers
     print("Setting up classifiers...", end = " ")
 
@@ -176,7 +176,7 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     if gen_convergence_plot:
         timer.reset()
         print("Generating a convergence plot...", end = " ")
-        plot_convergence(clf_grid.best_estimator_, X_train, y_train, plot_out_path)
+        plot_convergence(clf_grid.best_estimator_, X_train, y_train, plot_conv_path)
         print("Done in: " + timer.print())
 
 
@@ -197,7 +197,15 @@ def run_task(use_grayscale = True, show_mean = False, gen_convergence_plot = Fal
     print("Labels: ", y_test)
     print("Predicted: ", y_pred)
     print("Score: ", clf_grid.score(X_test, y_test))
-    print("Confusion matrix: ", confusion_matrix(y_test, y_pred))
+    cm = confusion_matrix(y_test, y_pred)
+    print("Confusion matrix: ", cm)
+
+    # Plot the confusion matrix
+    if plot_conf_path:
+        font = {'size' : 12}
+        plt.rc('font', **font)
+        ConfusionMatrixDisplay(confusion_matrix = cm, display_labels = clf_grid.best_estimator_.classes_).plot()
+        plt.savefig(plot_conv_path)
     
     # Print the classification report 
     print(classification_report(y_test, y_pred)) 
