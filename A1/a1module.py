@@ -137,7 +137,7 @@ def run_task(run_cross_val = True, clf_optimal_idx = 0, use_grayscale = True, sh
     print("Setting up classifiers...", end = " ")
     clf = []
     clf.append(
-        SGDClassifier(loss = 'perceptron', penalty = 'l1', learning_rate = 'optimal', alpha = 1e-4, max_iter = 3000, shuffle = True, random_state = 42, n_jobs = -1, verbose = 0)
+        SGDClassifier(loss = 'log_loss', penalty = 'l1', learning_rate = 'optimal', alpha = 1e-4, max_iter = 3000, shuffle = True, random_state = 42, n_jobs = -1, verbose = 0)
     )
     clf.append(
         LogisticRegression(solver = 'saga', penalty = 'l1', max_iter = 3000, random_state = 42, n_jobs = -1, verbose = 2)
